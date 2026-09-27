@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Jev AI &mdash; User Developer Dashboard</title>
+    <meta name="description" content="Jev AI Developer Dashboard - API Key Management, Live Model Playground, Code Generation and Hit Tracking.">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --bg-card: #070707;
+            --bg-card-hover: #0c0c0c;
+            --bg-input: #040404;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --text-faint: #444444;
+            --border: #1e1e1e;
+            --border-hover: #333333;
+            --sidebar-w: 260px;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #030303;
+            background-image: none;
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Red borders removed */
+
+        /* Ambient Glass Backdrop Aura */
+        .ambient-backglow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-orb-1 {
+            position: absolute;
+            top: 15%;
+            left: 55%;
+            transform: translateX(-50%);
+            width: 820px;
+            height: 480px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        .ambient-orb-2 {
+            position: absolute;
+            top: 60%;
+            left: 55%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 520px;
+            background: transparent;
+            filter: blur(95px);
+        }
+
+        .ambient-orb-3 {
+            position: absolute;
+            top: 25%;
+            left: -120px;
+            width: 450px;
+            height: 700px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        .ambient-orb-4 {
+            position: absolute;
+            top: 30%;
+            right: -120px;
+            width: 450px;
+            height: 700px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* App Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: #020202;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: transform 0.25s ease-in-out;
+        }
+
+        .sidebar-header {
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-link {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-badge {
+            font-size: 10px;
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav button,
+        .sidebar-nav a,
+        .sidebar-nav .nav-item,
+        button.nav-item,
+        .nav-item {
+            font-family: var(--font-mono);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 12px !important;
+            padding: 11px 14px !important;
+            color: var(--text-muted);
+            font-size: 13px;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .sidebar-nav .nav-item:hover,
+        button.nav-item:hover {
+            color: var(--text-main);
+            background: var(--bg-card);
+            border-color: var(--border);
+        }
+
+        .sidebar-nav .nav-item.active,
+        button.nav-item.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 700;
+            border-color: #ffffff;
+        }
+
+        .sidebar-nav .nav-item span,
+        button.nav-item span {
+            text-align: left !important;
+        }
+
+        .sidebar-nav .nav-item span:first-child,
+        button.nav-item span:first-child {
+            min-width: 28px !important;
+            text-align: left !important;
+            display: inline-block !important;
+            flex-shrink: 0 !important;
+        }
+
+        .sidebar-nav .nav-item span:last-child,
+        button.nav-item span:last-child {
+            flex: 1 1 auto !important;
+            text-align: left !important;
+        }
+
+        .sidebar-footer {
+            padding: 16px 14px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .user-pill {
+            font-size: 11px;
+            color: var(--text-muted);
+            word-break: break-all;
+            line-height: 1.4;
+            background: var(--bg-card);
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+        }
+
+        .btn-logout {
+            width: 100%;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 8px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .btn-logout:hover {
+            color: #ffffff;
+            border-color: var(--text-muted);
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 90;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 18px;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topbar-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .content-body {
+            padding: 28px;
+            max-width: 1040px;
+            width: 100%;
+        }
+
+        /* Cards */
+        .card {
+            position: relative;
+            background: rgba(12, 12, 14, 0.68);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 
+                0 20px 50px -10px rgba(0, 0, 0, 0.75);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 8%;
+            right: 8%;
+            height: 26px;
+            background: transparent;
+            filter: blur(18px);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.85;
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        /* Stat Grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            position: relative;
+            background: rgba(8, 8, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 
+                0 10px 30px -10px rgba(0, 0, 0, 0.7);
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* API Key Banner */
+        .key-banner {
+            background: rgba(4, 4, 4, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .key-code {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            color: #ffffff;
+            word-break: break-all;
+            font-weight: 600;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 12px 14px;
+            border-radius: 0;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            border-color: #ffffff;
+            outline: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Buttons */
+        button, .btn {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 18px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-hover);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Code & Pre */
+        pre {
+            background: #020202;
+            border: 1px solid var(--border);
+            padding: 18px;
+            overflow-x: auto;
+            color: #d1d5db;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 120px;
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -9px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            border-bottom-color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Tab Panes */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.15s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Badges */
+        .pill {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .pill-yes {
+            background: #064e3b;
+            color: #34d399;
+            border-color: #059669;
+        }
+
+        .pill-no {
+            background: #7f1d1d;
+            color: #f87171;
+            border-color: #dc2626;
+        }
+
+        .pill-choice {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-color: #2563eb;
+        }
+
+        .pill-lat {
+            background: #18181b;
+            color: #a1a1aa;
+            border-color: #27272a;
+        }
+
+        /* Documentation Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #020202;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-backdrop.open {
+                display: block;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: inline-flex;
+            }
+            .content-body {
+                padding: 16px;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Strict Left Alignment for all Sidebar Tabs */
+        .sidebar-nav button,
+        .sidebar-nav a,
+        .sidebar-nav .nav-item,
+        button.nav-item,
+        .nav-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .sidebar-nav .nav-item span,
+        button.nav-item span {
+            text-align: left !important;
+        }
+        .sidebar-nav .nav-item span:first-child,
+        button.nav-item span:first-child {
+            min-width: 28px !important;
+            text-align: left !important;
+            display: inline-block !important;
+            flex-shrink: 0 !important;
+        }
+        .sidebar-nav .nav-item span:last-child,
+        button.nav-item span:last-child {
+            flex: 1 1 auto !important;
+            text-align: left !important;
+        }
+    </style>
+    <style>
+        /* ============================================================
+           ZIGZAG EDGE LINES — LEFT & RIGHT ONLY, 25% OPACITY
+           No red anywhere else. No gradient, no glow, no border.
+           ============================================================ */
+        .zz-layer-left {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 14px;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+            opacity: 0.13;
+        }
+        .zz-layer-left  { left: 0; }
+        
+        .zz-svg {
+            position: absolute;
+            top: -300px;
+            bottom: -300px;
+            width: 100%;
+            height: calc(100% + 600px);
+            animation: zzRun 2.2s linear infinite;
+        }
+        .zz-path {
+            fill: none;
+            stroke: #ff2a3d;
+            stroke-width: 2.2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px #ff2a3d);
+        }
+        @keyframes zzRun {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-300px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Blurry Red Back-Glow Under Glass -->
+    <div class="ambient-backglow">
+        <div class="ambient-orb-1"></div>
+        <div class="ambient-orb-2"></div>
+        <div class="ambient-orb-3"></div>
+        <div class="ambient-orb-4"></div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="brand-link">
+                    <span id="sidebar_brand_name" class="brand-name-text">jev</span>
+                    <span class="brand-badge">dashboard</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button type="button" class="nav-item active" data-tab="tab-overview">
+                    <span>01.</span> <span>Overview & Hits</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-playground">
+                    <span>02.</span> <span>Decision Playground</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-code">
+                    <span>03.</span> <span>Code Integration</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-docs">
+                    <span>04.</span> <span>API Documentation</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-specs">
+                    <span>05.</span> <span>System Specs</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-pill">
+                    <div style="font-size:10px; color:var(--text-faint); margin-bottom:2px;">USER ACCOUNT</div>
+                    <div id="sidebar_user_email" style="color:#ffffff; font-weight:600;">loading...</div>
+                </div>
+                <a href="#logout" class="btn-logout" id="btn-sidebar-logout" onclick="window.runUserLogout && window.runUserLogout(event)">sign out</a>
+            </div>
+        </aside>
+
+        <!-- Mobile Drawer Backdrop -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button type="button" class="menu-toggle" id="menu-toggle">☰</button>
+                    <div class="topbar-title" id="topbar-title">Overview & API Hits</div>
+                </div>
+                <div class="topbar-actions">
+                    <span>zero cost &bull; free tier</span>
+                    <a href="index.html" id="topbar_landing_link" target="_blank" style="color:var(--text-main); margin-left:8px;">landing page &nearr;</a>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- TAB 1: OVERVIEW -->
+                <section class="tab-pane active" id="tab-overview">
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Your Unique API Hits</div>
+                            <div class="stat-val" id="user_hits_count">0</div>
+                            <div class="stat-sub">Tracked specifically for this account</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Access Tier</div>
+                            <div class="stat-val" style="font-size:24px;">Unlimited</div>
+                            <div class="stat-sub">Zero token fees &bull; Non-autoregressive</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Context Window</div>
+                            <div class="stat-val" id="stat_context_win" style="font-size:24px;">8.19k</div>
+                            <div class="stat-sub">Active decision sequence length</div>
+                        </div>
+                    </div>
+
+                    <!-- Free API Key Card -->
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <h2 class="card-title">Free Dedicated API Key</h2>
+                            <span style="font-size:11px; color:#10b981;">● Active & Ready</span>
+                        </div>
+                        <p class="card-desc">Your dedicated key is automatically attached to this user account in SQLite. Zero cost, no credit card required.</p>
+
+                        <div class="key-banner">
+                            <span class="key-code" id="dash_api_key_text">jev_...</span>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" id="btn-copy-user-key" class="btn btn-outline btn-sm">copy api key</button>
+                                <button type="button" id="btn-rotate-user-key" class="btn btn-outline btn-sm" style="color:#f59e0b; border-color:#d97706;">🔄 rotate key</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How to Attach API Key Guide -->
+                    <div class="card">
+                        <h2 class="card-title">How to Attach Your API Key</h2>
+                        <p class="card-desc">Attach your API key to any HTTP request using any of the following standard methods:</p>
+
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            <div>
+                                <label>Method 1: HTTP Header (Recommended)</label>
+                                <pre>X-API-Key: <span class="active_key_placeholder">jev_...</span></pre>
+                            </div>
+
+                            <div>
+                                <label>Method 2: URL Query Parameter</label>
+                                <pre id="method2_example">http://187.52.117.2:8000/query?api_key=<span class="active_key_placeholder">jev_...</span>&amp;text=...&amp;question=...</pre>
+                            </div>
+
+                            <div>
+                                <label>Method 3: JSON Request Body</label>
+                                <pre>{
+  "api_key": "<span class="active_key_placeholder">jev_...</span>",
+  "text": "The client requested an account cancellation.",
+  "question": "Is the user churning?",
+  "type": "noul"
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: PLAYGROUND -->
+                <section class="tab-pane" id="tab-playground">
+                    <div class="card">
+                        <h2 class="card-title">Authenticated Decision Playground</h2>
+                        <p class="card-desc">Any decision run here is authenticated with your account and tracked automatically.</p>
+
+                        <div class="form-group">
+                            <label for="dash_p_text">Input Context / Document</label>
+                            <textarea id="dash_p_text" rows="4">The user account shows 5 failed password attempts from IP 192.168.1.1 within 60 seconds.</textarea>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="dash_p_question">Question / Evaluation Goal</label>
+                                <input type="text" id="dash_p_question" value="Is this potential malicious brute-force activity?">
+                            </div>
+                            <div class="form-group">
+                                <label for="dash_p_type">Decision Type</label>
+                                <select id="dash_p_type">
+                                    <option value="noul">Boolean (Yes / No / Null)</option>
+                                    <option value="choice">Multiple Choice (Custom Options)</option>
+                                    <option value="classification">Classification &amp; Routing</option>
+                                    <option value="score">Scoring &amp; Severity Rubric</option>
+                                    <option value="sentiment">Sentiment Analysis</option>
+                                    <option value="risk">Risk &amp; Urgency Level</option>
+                                    <option value="intent">Intent Classification</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="dash_p_opts_group" style="display:none;">
+                            <label for="dash_p_options" id="dash_p_options_label">Choices / Criteria (Comma-separated)</label>
+                            <input type="text" id="dash_p_options" placeholder="high risk, medium risk, low risk">
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                            <button type="button" id="btn-run-dash-playground" class="btn btn-primary">
+                                execute decision &rarr;
+                            </button>
+                            <span style="font-size:12px; color:var(--text-muted);">
+                                Sub-second response on 2 vCPU
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h3 class="card-title" style="margin-bottom:0;">Result & Output</h3>
+                            <button type="button" id="btn-copy-dash-res" class="btn btn-outline btn-sm">copy json</button>
+                        </div>
+                        <div id="dash_badge_box" style="margin-bottom:12px;"></div>
+                        <pre id="dash_playground_res">Execute a decision query above to view the live result...</pre>
+                    </div>
+                </section>
+
+                <!-- TAB 3: CODE INTEGRATION -->
+                <section class="tab-pane" id="tab-code">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h2 class="card-title" style="margin-bottom:0;">Production Code Snippets</h2>
+                            <button type="button" id="btn-copy-code" class="btn btn-outline btn-sm">copy snippet</button>
+                        </div>
+                        <p class="card-desc">Your active API key is already inserted below. Copy and paste directly into your project.</p>
+
+                        <div class="code-tabs">
+                            <button type="button" class="tab-btn active" data-lang="curl">cURL</button>
+                            <button type="button" class="tab-btn" data-lang="python">Python</button>
+                            <button type="button" class="tab-btn" data-lang="js">Node.js</button>
+                            <button type="button" class="tab-btn" data-lang="php">PHP</button>
+                            <button type="button" class="tab-btn" data-lang="go">Go</button>
+                        </div>
+
+                        <pre id="code_snippet_output">curl -X POST http://187.52.117.2:8000/query \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: sk_live_demo' \
+  -d '{
+    "text": "My monthly subscription was charged twice for invoice #401.",
+    "question": "Is the user demanding a refund?",
+    "type": "noul"
+  }'</pre>
+                    </div>
+                </section>
+
+                <!-- TAB 4: API DOCUMENTATION -->
+                <section class="tab-pane" id="tab-docs">
+                    <div class="card">
+                        <h2 class="card-title">Endpoint Reference</h2>
+                        <p class="card-desc">Direct API endpoints (<code id="docs_api_host">http://187.52.117.2:8000</code>).</p>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Endpoint</th>
+                                        <th>Description</th>
+                                        <th>Authentication</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>POST / GET</code></td>
+                                        <td><code>/query</code></td>
+                                        <td>Execute decision inference with custom context and question.</td>
+                                        <td>Header <code>X-API-Key</code> or Cookie</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>GET</code></td>
+                                        <td><code>/test</code></td>
+                                        <td>In-memory fast predict health test.</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>GET</code></td>
+                                        <td><code>/settings</code></td>
+                                        <td>Fetch active context window and system settings.</td>
+                                        <td>Public</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 5: SYSTEM SPECS -->
+                <section class="tab-pane" id="tab-specs">
+                    <div class="card">
+                        <h2 class="card-title">System 1 Architecture & Specifications</h2>
+                        <p class="card-desc">Technical breakdown of <span class="brand-name-cap">Jev</span> AI running on Hostinger KVM 2 VPS.</p>
+
+                        <div class="stat-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Model Weights</div>
+                                <div class="stat-val" style="font-size:20px;">Open-Weights</div>
+                                <div class="stat-sub">ModernBERT-large & mmBERT</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Language Support</div>
+                                <div class="stat-val" style="font-size:20px;">100+ Langs</div>
+                                <div class="stat-sub">Cross-lingual transfer</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Hallucinations</div>
+                                <div class="stat-val" style="font-size:20px; color:#10b981;">0% Zero</div>
+                                <div class="stat-sub">Deterministic logit classification</div>
+                            </div>
+                        </div>
+
+                        <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+                            <p style="margin-bottom:12px;">
+                                Unlike traditional LLMs (GPT-4, Claude) which suffer from 1-4 second token-by-token generation latency and potential generative hallucinations, <span class="brand-name-cap">Jev</span> evaluates context and decision conditions in a single non-autoregressive forward pass.
+                            </p>
+                            <p>
+                                All decisions, classifications, and probability distributions are calculated directly from representation logits, ensuring 100% deterministic outputs with zero hallucination.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function safeOn(id, event, fn) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener(event, fn);
+                return true;
+            }
+            return false;
+        }
+        window.safeOn = safeOn;
+
+        window.runUserLogout = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            try {
+                localStorage.removeItem('laya_user_token');
+                localStorage.removeItem('auth_user_token');
+                localStorage.removeItem('laya_user');
+                localStorage.removeItem('auth_user');
+                sessionStorage.clear();
+            } catch(err) {}
+            try {
+                if (window.authFetch) {
+                    window.authFetch('/user/logout', { method: 'POST' });
+                } else {
+                    fetch('/user/logout', { method: 'POST' });
+                }
+            } catch(err) {}
+            setTimeout(function() {
+                window.location.href = 'login.html';
+            }, 150);
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentUser = null;
+            // Code Integration Snippets
+            var currentApiHost = (window.LAYA_CONFIG && window.LAYA_CONFIG.API_BASE_URL) ? window.LAYA_CONFIG.API_BASE_URL : 'http://187.52.117.2:8000';
+            var currentLang = 'curl';
+
+            function setApiHost(host) {
+                if (!host) return;
+                currentApiHost = host.replace(/\/+$/, '');
+                var docsHost = document.getElementById('docs_api_host');
+                if (docsHost) docsHost.textContent = currentApiHost;
+                var m2 = document.getElementById('method2_example');
+                if (m2) {
+                    var k = currentUser ? currentUser.api_key : 'sk_live_...';
+                    m2.innerHTML = currentApiHost + '/query?api_key=<span class="active_key_placeholder">' + k + '</span>&amp;text=...&amp;question=...';
+                }
+                updateSnippets(currentLang);
+            }
+
+            var snippets = {
+                curl: function(k) {
+                    var keyVal = k || 'sk_live_...';
+                    return "curl -X POST " + currentApiHost + "/query \\\n" +
+                           "  -H 'Content-Type: application/json' \\\n" +
+                           "  -H 'X-API-Key: " + keyVal + "' \\\n" +
+                           "  -d '{\n" +
+                           "    \"text\": \"My monthly subscription was charged twice for invoice #401.\",\n" +
+                           "    \"question\": \"Is the user demanding a refund?\",\n" +
+                           "    \"type\": \"noul\"\n" +
+                           "  }'";
+                },
+                python: function(k) {
+                    var keyVal = k || 'sk_live_...';
+                    return "import requests\n\n" +
+                           "url = '" + currentApiHost + "/query'\n" +
+                           "headers = {\n" +
+                           "    'Content-Type': 'application/json',\n" +
+                           "    'X-API-Key': '" + keyVal + "'\n" +
+                           "}\n" +
+                           "payload = {\n" +
+                           "    'text': 'My monthly subscription was charged twice for invoice #401.',\n" +
+                           "    'question': 'Is the user demanding a refund?',\n" +
+                           "    'type': 'noul'\n" +
+                           "}\n\n" +
+                           "response = requests.post(url, json=payload, headers=headers)\n" +
+                           "data = response.json()\n\n" +
+                           "print('Verdict:', data['summary']['verdict'])\n" +
+                           "print('Probability:', data['summary']['probability'])\n" +
+                           "print('Confidence:', data['summary']['confidence'])";
+                },
+                js: function(k) {
+                    var keyVal = k || 'sk_live_...';
+                    return "const response = await fetch('" + currentApiHost + "/query', {\n" +
+                           "  method: 'POST',\n" +
+                           "  headers: {\n" +
+                           "    'Content-Type': 'application/json',\n" +
+                           "    'X-API-Key': '" + keyVal + "'\n" +
+                           "  },\n" +
+                           "  body: JSON.stringify({\n" +
+                           "    text: 'My monthly subscription was charged twice for invoice #401.',\n" +
+                           "    question: 'Is the user demanding a refund?',\n" +
+                           "    type: 'noul'\n" +
+                           "  })\n" +
+                           "});\n\n" +
+                           "const data = await response.json();\n" +
+                           "console.log('Verdict:', data.summary.verdict);\n" +
+                           "console.log('Hits:', data.api_tracking ? data.api_tracking.hits : 'ok');";
+                },
+                php: function(k) {
+                    var keyVal = k || 'sk_live_...';
+                    return "<" + "?php\n" +
+                           "$ch = curl_init('" + currentApiHost + "/query');\n" +
+                           "$payload = json_encode([\n" +
+                           "    'text' => 'My monthly subscription was charged twice for invoice #401.',\n" +
+                           "    'question' => 'Is the user demanding a refund?',\n" +
+                           "    'type' => 'noul'\n" +
+                           "]);\n" +
+                           "curl_setopt($ch, CURLOPT_HTTPHEADER, [\n" +
+                           "    'Content-Type: application/json',\n" +
+                           "    'X-API-Key: " + keyVal + "'\n" +
+                           "]);\n" +
+                           "curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);\n" +
+                           "curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n" +
+                           "$response = curl_exec($ch);\n" +
+                           "curl_close($ch);\n\n" +
+                           "$data = json_decode($response, true);\n" +
+                           "echo 'Verdict: ' . $data['summary']['verdict'];";
+                },
+                go: function(k) {
+                    var keyVal = k || 'sk_live_...';
+                    return "package main\n\n" +
+                           "import (\n" +
+                           "    \"bytes\"\n" +
+                           "    \"encoding/json\"\n" +
+                           "    \"fmt\"\n" +
+                           "    \"net/http\"\n" +
+                           "    \"io\"\n" +
+                           ")\n\n" +
+                           "func main() {\n" +
+                           "    payload := map[string]string{\n" +
+                           "        \"text\": \"My monthly subscription was charged twice for invoice #401.\",\n" +
+                           "        \"question\": \"Is the user demanding a refund?\",\n" +
+                           "        \"type\": \"noul\",\n" +
+                           "    }\n" +
+                           "    jsonData, _ := json.Marshal(payload)\n\n" +
+                           "    req, _ := http.NewRequest(\"POST\", \"" + currentApiHost + "/query\", bytes.NewBuffer(jsonData))\n" +
+                           "    req.Header.Set(\"Content-Type\", \"application/json\")\n" +
+                           "    req.Header.Set(\"X-API-Key\", \"" + keyVal + "\")\n\n" +
+                           "    client := &http.Client{}\n" +
+                           "    resp, err := client.Do(req)\n" +
+                           "    if err != nil { panic(err) }\n" +
+                           "    defer resp.Body.Close()\n\n" +
+                           "    body, _ := io.ReadAll(resp.Body)\n" +
+                           "    fmt.Println(string(body))\n" +
+                           "}";
+                }
+            };
+
+            function updateSnippets(lang) {
+                try {
+                    currentLang = lang || currentLang || 'curl';
+                    var k = (currentUser && currentUser.api_key) ? currentUser.api_key : 'sk_live_...';
+                    var pre = document.getElementById('code_snippet_output');
+                    if (!pre) return;
+                    if (snippets && snippets[currentLang] && typeof snippets[currentLang] === 'function') {
+                        var code = snippets[currentLang](k);
+                        if (code) {
+                            pre.textContent = code;
+                        }
+                    }
+                } catch(err) {
+                    console.error('updateSnippets error:', err);
+                }
+            }
+            window.updateSnippets = updateSnippets;
+            var sidebar = document.getElementById('sidebar');
+            var backdrop = document.getElementById('sidebar-backdrop');
+            var menuToggle = document.getElementById('menu-toggle');
+            var topbarTitle = document.getElementById('topbar-title');
+
+            // Mobile Sidebar Toggle
+            function toggleSidebar() {
+                if (sidebar) sidebar.classList.toggle('open');
+                if (backdrop) backdrop.classList.toggle('open');
+            }
+            if (menuToggle) menuToggle.addEventListener('click', toggleSidebar);
+            if (backdrop) backdrop.addEventListener('click', toggleSidebar);
+
+            // Tab Switching Architecture
+            var navButtons = document.querySelectorAll('.nav-item[data-tab]');
+            var tabPanes = document.querySelectorAll('.tab-pane');
+            var titles = {
+                'tab-overview': 'Overview & API Hits',
+                'tab-playground': 'Decision Playground',
+                'tab-code': 'Code Integration Snippets',
+                'tab-docs': 'API Reference & Documentation',
+                'tab-specs': 'Model Architecture & Specs'
+            };
+
+            function switchTab(target) {
+                if (!target) return;
+                // Normalize target if passed without prefix
+                if (target === 'overview' || target === 'tab-overview') target = 'tab-overview';
+                else if (target === 'playground' || target === 'tab-playground') target = 'tab-playground';
+                else if (target === 'code' || target === 'tab-code') target = 'tab-code';
+                else if (target === 'docs' || target === 'tab-docs') target = 'tab-docs';
+                else if (target === 'specs' || target === 'tab-specs') target = 'tab-specs';
+
+                navButtons.forEach(function(b) {
+                    if (b.getAttribute('data-tab') === target) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                });
+
+                tabPanes.forEach(function(p) {
+                    if (p.id === target) {
+                        p.classList.add('active');
+                    } else {
+                        p.classList.remove('active');
+                    }
+                });
+
+                if (topbarTitle) {
+                    topbarTitle.textContent = titles[target] || 'User Dashboard';
+                }
+                if (sidebar) sidebar.classList.remove('open');
+                if (backdrop) backdrop.classList.remove('open');
+
+                if (target === 'tab-code') {
+                    updateSnippets(currentLang);
+                }
+            }
+            window.switchTab = switchTab;
+
+            navButtons.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = this.getAttribute('data-tab');
+                    switchTab(target);
+                    try { history.replaceState(null, '', '#' + target.replace('tab-', '')); } catch(err){}
+                });
+            });
+
+            // Cross-tab button
+            safeOn('btn-goto-playground', 'click', function() {
+                switchTab('tab-playground');
+                try { history.replaceState(null, '', '#playground'); } catch(err){}
+            });
+
+            // Read hash on page load
+            if (window.location.hash) {
+                var rawHash = window.location.hash.replace('#', '');
+                switchTab(rawHash);
+            }
+
+            var basePath = '';
+            var currentBrand = localStorage.getItem('app_brand_name') || 'jev';
+
+            function applyBrand(brand) {
+                if (!brand) return;
+                currentBrand = String(brand).trim();
+                var brandCap = currentBrand.charAt(0).toUpperCase() + currentBrand.slice(1);
+                document.querySelectorAll('.brand-name-text').forEach(function(el) {
+                    el.textContent = currentBrand;
+                });
+                document.querySelectorAll('.brand-name-cap').forEach(function(el) {
+                    el.textContent = brandCap;
+                });
+                document.querySelectorAll('.base_path_text').forEach(function(el) {
+                    el.textContent = '';
+                });
+                var sideBrand = document.getElementById('sidebar_brand_name');
+                if (sideBrand) sideBrand.textContent = currentBrand;
+                document.title = brandCap + ' \u2014 user dashboard';
+                var topLink = document.getElementById('topbar_landing_link');
+                if (topLink) topLink.href = 'index.html';
+            }
+            applyBrand(currentBrand);
+
+            // Fetch User Profile & Hits
+            function renderUserData(user) {
+                if (!user) return;
+                var emailEl = document.getElementById('sidebar_user_email');
+                if (emailEl) emailEl.textContent = user.email || 'developer';
+                var hitsEl = document.getElementById('user_hits_count');
+                if (hitsEl) hitsEl.textContent = (user.hits !== undefined ? user.hits : 0);
+                var keyEl = document.getElementById('dash_api_key_text');
+                if (keyEl) keyEl.textContent = user.api_key || 'sk_demo_live_preview';
+
+                var placeholders = document.querySelectorAll('.active_key_placeholder');
+                placeholders.forEach(function(el) {
+                    el.textContent = user.api_key || 'sk_demo_live_preview';
+                });
+
+                updateSnippets(currentLang);
+            }
+
+            function loadUserProfile() {
+                var cached = (typeof window.getCurrentUser === 'function') ? window.getCurrentUser() : null;
+                if (!cached) {
+                    try {
+                        var raw = localStorage.getItem('laya_user') || localStorage.getItem('auth_user');
+                        if (raw) cached = JSON.parse(raw);
+                    } catch(e) {}
+                }
+                if (cached) {
+                    currentUser = cached;
+                    renderUserData(currentUser);
+                }
+
+                var fetchFn = window.authFetch ? window.authFetch('/user/me') : fetch('/user/me');
+                fetchFn
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data && data.logged_in && data.user) {
+                            currentUser = data.user;
+                            try {
+                                localStorage.setItem('laya_user', JSON.stringify(data.user));
+                                localStorage.setItem('auth_user', JSON.stringify(data.user));
+                                if (data.user.api_key) {
+                                    localStorage.setItem('laya_api_key', data.user.api_key);
+                                }
+                            } catch(e){}
+                            renderUserData(currentUser);
+                        } else if (!cached) {
+                            // Default to demo developer session without kicking user out
+                            currentUser = {
+                                email: "dev@local.user",
+                                api_key: "sk_live_demo_preview",
+                                hits: 0
+                            };
+                            renderUserData(currentUser);
+                        }
+                    })
+                    .catch(function(err) {
+                        if (!cached) {
+                            currentUser = {
+                                email: "dev@local.user",
+                                api_key: "sk_live_demo_preview",
+                                hits: 0
+                            };
+                            renderUserData(currentUser);
+                        }
+                    });
+            }
+            loadUserProfile();
+
+            // Wire Logout Button
+            safeOn('btn-sidebar-logout', 'click', window.runUserLogout);
+
+            // Fetch Settings (Context window & Brand & API Base URL)
+            var fetchSettings = window.authFetch ? window.authFetch('/settings') : fetch('/settings');
+            fetchSettings
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.context_window) {
+                        var cwEl = document.getElementById('stat_context_win');
+                        if (cwEl) cwEl.textContent = data.context_window;
+                    }
+                    if (data && data.brand_name) {
+                        applyBrand(data.brand_name);
+                        localStorage.setItem('app_brand_name', data.brand_name);
+                    }
+                    if (data && data.api_base_url) {
+                        setApiHost(data.api_base_url);
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Error loading settings:', err);
+                });
+
+            // Copy Key Button
+            safeOn('btn-copy-user-key', 'click', function() {
+                var k = currentUser ? currentUser.api_key : 'sk_live_demo_preview';
+                navigator.clipboard.writeText(k).then(function() {
+                    alert('API Key copied to clipboard: ' + k);
+                });
+            });
+
+            // Rotate Key Button
+            safeOn('btn-rotate-user-key', 'click', function() {
+                if (!confirm('Are you sure you want to rotate your secret API key? Your old key will be revoked immediately.')) return;
+                var btn = document.getElementById('btn-rotate-user-key');
+                if (btn) btn.textContent = '🔄 rotating...';
+                var rotFetch = window.authFetch ? window.authFetch('/user/api-key/rotate', { method: 'POST' }) : fetch('/user/api-key/rotate', { method: 'POST' });
+                rotFetch
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (btn) btn.textContent = '🔄 rotate key';
+                        if (data && data.status === 'success' && data.new_key) {
+                            if (!currentUser) currentUser = {};
+                            currentUser.api_key = data.new_key;
+                            renderUserData(currentUser);
+                            alert('New API Key issued successfully: ' + data.new_key);
+                        } else {
+                            alert(data.detail || 'Failed to rotate key.');
+                        }
+                    })
+                    .catch(function(err) {
+                        if (btn) btn.textContent = '🔄 rotate key';
+                        alert('Error rotating key: ' + err.message);
+                    });
+            });
+
+            // Toggle Playground options & presets
+            var pType = document.getElementById('dash_p_type');
+            var pOpts = document.getElementById('dash_p_opts_group');
+            var pOptsInput = document.getElementById('dash_p_options');
+            var pOptsLabel = document.getElementById('dash_p_options_label');
+
+            var dashTypePresets = {
+                'noul': { show: false, label: '', placeholder: '', value: '', defaultQ: 'Is this potential malicious brute-force activity?' },
+                'choice': { show: true, label: 'Choices / Options (comma separated)', placeholder: 'high risk, medium risk, low risk', value: 'high risk, medium risk, low risk', defaultQ: 'Assess the risk category of this event' },
+                'classification': { show: true, label: 'Target Categories / Departments', placeholder: 'billing, tech_support, sales, account_security', value: 'billing, tech_support, sales, account_security', defaultQ: 'Which department should handle this ticket?' },
+                'score': { show: true, label: 'Scoring Rubric Levels (lowest to highest)', placeholder: 'very low, low, medium, high, critical', value: 'very low, low, medium, high, critical', defaultQ: 'Rate the technical severity of this incident' },
+                'sentiment': { show: true, label: 'Sentiment Classes', placeholder: 'positive, neutral, negative', value: 'positive, neutral, negative', defaultQ: 'What is the user sentiment?' },
+                'risk': { show: true, label: 'Risk & Priority Levels', placeholder: 'critical, high, medium, low', value: 'critical, high, medium, low', defaultQ: 'Determine the threat and priority level' },
+                'intent': { show: true, label: 'Intent Categories', placeholder: 'inquiry, complaint, upgrade, cancellation, feedback', value: 'inquiry, complaint, upgrade, cancellation, feedback', defaultQ: 'What is the primary customer intent?' }
+            };
+
+            function updatePlaygroundInputs(tVal) {
+                var config = dashTypePresets[tVal] || { show: true, label: 'Choices / Criteria (comma separated)', placeholder: '', value: '', defaultQ: '' };
+                if (pOpts) {
+                    if (config.show) {
+                        pOpts.style.display = 'block';
+                        if (pOptsLabel) pOptsLabel.textContent = config.label;
+                        if (pOptsInput) {
+                            pOptsInput.placeholder = config.placeholder;
+                            pOptsInput.value = config.value;
+                        }
+                    } else {
+                        pOpts.style.display = 'none';
+                        if (pOptsInput) pOptsInput.value = '';
+                    }
+                }
+                var qInput = document.getElementById('dash_p_question');
+                if (qInput && config.defaultQ) {
+                    qInput.value = config.defaultQ;
+                }
+            }
+
+            if (pType) {
+                pType.addEventListener('change', function() {
+                    updatePlaygroundInputs(this.value);
+                });
+            }
+
+            // Execute Decision Playground
+            var btnRun = document.getElementById('btn-run-dash-playground');
+            if (btnRun) {
+                btnRun.addEventListener('click', function() {
+                    var text = (document.getElementById('dash_p_text') ? document.getElementById('dash_p_text').value.trim() : '');
+                    var question = (document.getElementById('dash_p_question') ? document.getElementById('dash_p_question').value.trim() : '');
+                    var type = (document.getElementById('dash_p_type') ? document.getElementById('dash_p_type').value : 'noul');
+                    var options = (document.getElementById('dash_p_options') ? document.getElementById('dash_p_options').value.trim() : '');
+
+                    if (!text || !question) {
+                        alert('Please enter both context text and a question.');
+                        return;
+                    }
+
+                    var resPre = document.getElementById('dash_playground_res');
+                    var badgeBox = document.getElementById('dash_badge_box');
+                    
+                    btnRun.disabled = true;
+                    btnRun.textContent = 'executing...';
+                    if (resPre) resPre.textContent = 'Running inference with ' + currentBrand + ' model...';
+                    if (badgeBox) badgeBox.innerHTML = '<span class="pill pill-lat">Evaluating...</span>';
+
+                    var payload = {
+                        text: text,
+                        question: question,
+                        type: type,
+                        options: options
+                    };
+                    if (currentUser && currentUser.api_key) {
+                        payload.api_key = currentUser.api_key;
+                    }
+
+                    var headers = { 'Content-Type': 'application/json' };
+                    if (currentUser && currentUser.api_key) {
+                        headers['X-API-Key'] = currentUser.api_key;
+                    }
+                    var userToken = localStorage.getItem('auth_user_token') || localStorage.getItem('laya_user_token');
+                    if (userToken) {
+                        headers['x-user-token'] = userToken;
+                    }
+
+                    var targetUrl = (window.getApiUrl ? window.getApiUrl('/query') : '/query');
+                    var tStart = performance.now();
+
+                    function handleQuerySuccess(data) {
+                        var elapsed = Math.round(performance.now() - tStart);
+                        btnRun.disabled = false;
+                        btnRun.innerHTML = '<span>execute decision &rarr;</span>';
+
+                        if (resPre) {
+                            resPre.textContent = JSON.stringify(data, null, 2);
+                        }
+
+                        if (data && data.status === 'success' && data.summary) {
+                            var html = '';
+                            if (data.summary.verdict) {
+                                var isYes = data.summary.verdict.indexOf('Yes') !== -1;
+                                html += '<span class="pill ' + (isYes ? 'pill-yes' : 'pill-no') + '">Verdict: ' + data.summary.verdict + ' (' + (data.summary.probability || '') + ')</span>';
+                            } else if (data.summary.choice) {
+                                html += '<span class="pill pill-choice">Result: ' + data.summary.choice + '</span>';
+                            } else if (data.summary.score !== undefined) {
+                                var labelTxt = data.summary.score_label ? ' (' + data.summary.score_label + ')' : '';
+                                html += '<span class="pill pill-choice">Score: ' + data.summary.score + labelTxt + '</span>';
+                            }
+                            if (data.summary.confidence !== undefined && data.summary.confidence !== null) {
+                                html += '<span class="pill pill-lat">Confidence: ' + Math.round(data.summary.confidence * 100) + '%</span>';
+                            }
+                            html += '<span class="pill pill-lat">⚡ ' + elapsed + 'ms Latency</span>';
+                            if (data.api_tracking && data.api_tracking.hits !== undefined) {
+                                html += '<span class="pill pill-lat">Hits Tracked: ' + data.api_tracking.hits + '</span>';
+                                var hitsEl = document.getElementById('user_hits_count');
+                                if (hitsEl) hitsEl.textContent = data.api_tracking.hits;
+                            }
+                            if (badgeBox) badgeBox.innerHTML = html;
+                        } else if (data && data.detail) {
+                            if (badgeBox) badgeBox.innerHTML = '<span class="pill pill-no">Error: ' + data.detail + '</span>';
+                        }
+                    }
+
+                    function handleQueryError(err) {
+                        // Fallback directly to relative /query if primary target failed
+                        fetch('/query', {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify(payload)
+                        })
+                        .then(function(res2) { return res2.json(); })
+                        .then(handleQuerySuccess)
+                        .catch(function(err2) {
+                            btnRun.disabled = false;
+                            btnRun.innerHTML = '<span>execute decision &rarr;</span>';
+                            if (resPre) resPre.textContent = 'Error: ' + (err2.message || err.message);
+                            if (badgeBox) badgeBox.innerHTML = '<span class="pill pill-no">Inference Failed</span>';
+                        });
+                    }
+
+                    fetch(targetUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            return res.json().then(function(d) { return handleQuerySuccess(d); }).catch(function() {
+                                throw new Error('HTTP ' + res.status);
+                            });
+                        }
+                        return res.json().then(handleQuerySuccess);
+                    })
+                    .catch(handleQueryError);
+                });
+            }
+
+            // Copy Result JSON Button
+            safeOn('btn-copy-dash-res', 'click', function() {
+                var pre = document.getElementById('dash_playground_res');
+                if (!pre) return;
+                var txt = pre.textContent;
+                navigator.clipboard.writeText(txt).then(function() {
+                    var btn = document.getElementById('btn-copy-dash-res');
+                    if (btn) {
+                        btn.textContent = '✓ Copied!';
+                        setTimeout(function() { btn.textContent = 'copy json'; }, 2000);
+                    }
+                });
+            });
+
+            
+
+            var tabBtns = document.querySelectorAll('.code-tabs .tab-btn');
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    tabBtns.forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    updateSnippets(this.getAttribute('data-lang'));
+                });
+            });
+
+            // Initial render of snippets so code integration is never empty
+            updateSnippets('curl');
+
+            // Double-render guarantee: catch any timing edge cases on hosted servers
+            setTimeout(function() { updateSnippets(currentLang); }, 50);
+            setTimeout(function() { updateSnippets(currentLang); }, 300);
+            window.addEventListener('load', function() { updateSnippets(currentLang); });
+
+            // Copy Code Snippet Button
+            safeOn('btn-copy-code', 'click', function() {
+                var pre = document.getElementById('code_snippet_output');
+                if (!pre) return;
+                var codeText = pre.textContent;
+                navigator.clipboard.writeText(codeText).then(function() {
+                    var btn = document.getElementById('btn-copy-code');
+                    if (btn) {
+                        btn.textContent = '✓ Copied!';
+                        setTimeout(function() { btn.textContent = 'copy snippet'; }, 2000);
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Zigzag Edge Lines (Left & Right only, 25% opacity) -->
+    <div class="zz-layer-left">
+        <svg class="zz-svg" preserveAspectRatio="none" viewBox="0 0 16 600">
+            <path class="zz-path" d="M 0 0 L 8 15 L 1 30 L 9 45 L 2 60 L 10 75 L 1 90 L 8 105 L 2 120 L 9 135 L 1 150 L 10 165 L 2 180 L 8 195 L 1 210 L 9 225 L 2 240 L 10 255 L 1 270 L 8 285 L 2 300 L 9 315 L 1 330 L 10 345 L 2 360 L 8 375 L 1 390 L 9 405 L 2 420 L 10 435 L 1 450 L 8 465 L 2 480 L 9 495 L 1 510 L 10 525 L 2 540 L 8 555 L 1 570 L 9 585 L 0 600"/>
+        </svg>
+    </div>
+</body>
+</html>

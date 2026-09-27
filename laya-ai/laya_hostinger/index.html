@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Production High-Ranking SEO Meta Tags -->
+    <title>Jev AI &mdash; Open-Weights System 1 Decision Model | DevBeast</title>
+    <meta name="description" content="Jev AI is an ultra-fast, open-weights System 1 decision engine developed by DevBeast. High-speed structured classification, scoring, routing, and boolean probabilities in a single forward pass without hallucinations.">
+    <meta name="keywords" content="Jev AI, jev, DevBeast, System 1 AI, ModernBERT, non-autoregressive AI, decision engine, AI classifier, fast inference, AI routing, machine learning">
+    <meta name="author" content="DevBeast">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="./">
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jev AI &mdash; System 1 Decision Engine">
+    <meta property="og:description" content="Ultra-fast open-weights decision model for yes/no, choice, and score predictions in a single forward pass.">
+    <meta property="og:image" content="robot.png">
+    <meta property="og:url" content="./">
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jev AI &mdash; System 1 Decision Engine">
+    <meta name="twitter:description" content="Ultra-fast open-weights decision model for yes/no, choice, and score predictions in a single forward pass.">
+    <meta name="twitter:image" content="robot.png">
+
+    <!-- Schema.org JSON-LD Structured Data for Top Search Ranking -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Jev AI",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Cloud, Linux, Web",
+      "description": "Ultra-fast open-weights System 1 decision model developed by DevBeast. Evaluates state for classification, scoring, routing, and boolean probabilities in a single forward pass.",
+      "url": "./",
+      "author": {
+        "@type": "Organization",
+        "name": "DevBeast"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+    <script src="config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --text-faint: #555555;
+            --border: #222222;
+            --border-light: #333333;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #030303;
+            background-image: none;
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Red borders removed */
+
+        /* Ambient Glass Backdrop Aura */
+        .ambient-backglow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-orb-1 {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 820px;
+            height: 420px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        .ambient-orb-2 {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 980px;
+            height: 540px;
+            background: transparent;
+            filter: blur(95px);
+        }
+
+        .ambient-orb-3 {
+            position: absolute;
+            top: 25%;
+            left: -120px;
+            width: 480px;
+            height: 720px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        .ambient-orb-4 {
+            position: absolute;
+            top: 35%;
+            right: -120px;
+            width: 480px;
+            height: 720px;
+            background: transparent;
+            filter: blur(85px);
+        }
+
+        .ambient-orb-5 {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 380px;
+            background: transparent;
+            filter: blur(95px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Bar */
+        .topbar {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .breadcrumb {
+            color: var(--text-faint);
+            letter-spacing: -0.2px;
+        }
+
+        .breadcrumb span {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb span.active {
+            color: var(--text-main);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Buttons */
+        button, .btn {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 0px;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-text {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 12px;
+        }
+
+        .btn-text:hover {
+            color: var(--text-main);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+            padding: 9px 18px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            padding: 9px 18px;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 30px 0 60px 0;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-title {
+            font-size: 58px;
+            font-weight: 400;
+            letter-spacing: -1.5px;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            line-height: 1;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.65;
+            max-width: 540px;
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+
+        .repo-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+            font-size: 13px;
+        }
+
+        .repo-bar a {
+            color: var(--text-faint);
+            transition: color 0.15s;
+        }
+
+        .repo-bar a:hover {
+            color: var(--text-main);
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: none;
+            color: var(--text-faint);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
+        .btn-copy:hover {
+            color: var(--text-main);
+        }
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        /* Hero Right: Spiral Art */
+        .hero-right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spiral-frame {
+            max-width: 360px;
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spiral-img {
+            max-width: 100%;
+            height: auto;
+            user-select: none;
+            pointer-events: none;
+            animation: robotFloat 6s ease-in-out infinite;
+            filter: drop-shadow(0 15px 35px rgba(255, 255, 255, 0.07));
+            transition: filter 0.3s ease;
+        }
+
+        @keyframes robotFloat {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                filter: drop-shadow(0 12px 25px rgba(255, 255, 255, 0.05));
+            }
+            50% {
+                transform: translateY(-8px) scale(1.01);
+                filter: drop-shadow(0 20px 40px rgba(255, 255, 255, 0.12));
+            }
+        }
+
+        /* Bottom Metrics Grid */
+        .metrics-section {
+            position: relative;
+            background: rgba(10, 10, 12, 0.60);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.8);
+            margin-bottom: 70px;
+        }
+
+        .metrics-section::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 12%;
+            right: 12%;
+            height: 24px;
+            background: transparent;
+            filter: blur(18px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .metric-card {
+            padding: 24px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-card:last-child {
+            border-right: none;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-faint);
+            letter-spacing: -0.2px;
+        }
+
+        .metric-val {
+            font-size: 26px;
+            font-weight: 400;
+            color: var(--text-main);
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .metric-val .sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .metric-val .cut-price {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--text-muted);
+        }
+
+        .modalities-flex {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 20px;
+        }
+
+        .mod-icon-t {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .mod-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #555555;
+            transition: color 0.15s;
+        }
+
+        .mod-icon svg {
+            display: block;
+        }
+
+        .mod-arrow {
+            color: #555555;
+            font-size: 16px;
+            margin: 0 1px;
+            line-height: 1;
+        }
+
+        /* Live Decision Demo Section */
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-tag {
+            font-size: 13px;
+            color: var(--text-faint);
+            margin-bottom: 6px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: -0.4px;
+        }
+
+        .demo-panel {
+            position: relative;
+            background: rgba(10, 10, 12, 0.62);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-top: 1px solid rgba(255, 255, 255, 0.20);
+            box-shadow: 
+                0 30px 70px -15px rgba(0, 0, 0, 0.85);
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .demo-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 6%;
+            right: 6%;
+            height: 36px;
+            background: transparent;
+            filter: blur(22px);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 12px;
+            border-radius: 0;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            border-color: #ffffff;
+            outline: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .demo-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .demo-result-box {
+            background: #020202;
+            border: 1px solid var(--border);
+            padding: 18px;
+            margin-top: 20px;
+            font-size: 13px;
+            overflow-x: auto;
+            color: #d1d5db;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .badge-box {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .pill-yes {
+            background: #064e3b;
+            color: #34d399;
+            border-color: #059669;
+        }
+
+        .pill-no {
+            background: #7f1d1d;
+            color: #f87171;
+            border-color: #dc2626;
+        }
+
+        .pill-choice {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-color: #2563eb;
+        }
+
+        .pill-lat {
+            background: #18181b;
+            color: #a1a1aa;
+            border-color: #27272a;
+        }
+
+        /* Auth Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-window {
+            background: rgba(12, 12, 14, 0.88);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-top: 1px solid rgba(255, 255, 255, 0.24);
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 28px;
+            position: relative;
+            box-shadow: 
+                0 30px 80px -15px rgba(0, 0, 0, 0.95);
+        }
+
+        .modal-window::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 10%;
+            right: 10%;
+            height: 32px;
+            background: transparent;
+            filter: blur(22px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .modal-window-docs {
+            background: rgba(12, 12, 14, 0.90);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-top: 1px solid rgba(255, 255, 255, 0.24);
+            max-width: 820px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 32px 28px;
+            position: relative;
+            box-shadow: 
+                0 35px 90px -15px rgba(0, 0, 0, 0.95);
+        }
+
+        .modal-window-docs::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 12%;
+            right: 12%;
+            height: 36px;
+            background: transparent;
+            filter: blur(24px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .docs-header {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+
+        .docs-tag {
+            font-size: 11px;
+            color: var(--text-faint);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .docs-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .docs-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .docs-section {
+            margin-bottom: 24px;
+        }
+
+        .docs-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .docs-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .docs-table th {
+            background: #111111;
+            padding: 10px 14px;
+            color: var(--text-faint);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .docs-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .docs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .code-block-box {
+            background: #020202;
+            border: 1px solid var(--border);
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .code-tabs-nav {
+            display: flex;
+            gap: 2px;
+            background: #0d0d0d;
+            border-bottom: 1px solid var(--border);
+            padding: 0 6px;
+            overflow-x: auto;
+        }
+
+        .code-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 9px 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .code-tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .code-tab-btn.active {
+            color: var(--text-main);
+            border-bottom-color: #ffffff;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: #0d0d0d;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-faint);
+        }
+
+        .code-block-content {
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #d1d5db;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.6;
+        }
+
+        .btn-copy-code {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 3px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-copy-code:hover {
+            color: var(--text-main);
+            border-color: #ffffff;
+        }
+
+        .docs-footer-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        @keyframes highlightPulse {
+            0% { border-color: #ffffff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); }
+            50% { border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+            100% { border-color: var(--border); box-shadow: none; }
+        }
+
+        .demo-panel-highlight {
+            animation: highlightPulse 1.8s ease-out;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-faint);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .auth-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .auth-tab-btn.active {
+            color: var(--text-main);
+            border-bottom-color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .auth-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            padding: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .auth-submit-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .auth-alert {
+            padding: 10px 12px;
+            background: #450a0a;
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+            font-size: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+            font-size: 12px;
+            color: var(--text-faint);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 20px 0 40px 0;
+            }
+            .hero-right {
+                order: -1;
+                margin-bottom: 10px;
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .metric-card:nth-child(2) {
+                border-right: none;
+            }
+            .metric-card:nth-child(3) {
+                border-top: 1px solid var(--border);
+            }
+            .metric-card:nth-child(4) {
+                border-top: 1px solid var(--border);
+                border-right: none;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 44px;
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .metric-card {
+                border-right: none !important;
+                border-top: 1px solid var(--border);
+            }
+            .metric-card:first-child {
+                border-top: none;
+            }
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+    </style>
+    <style>
+        /* ============================================================
+           ZIGZAG EDGE LINES — LEFT & RIGHT ONLY, 25% OPACITY
+           No red anywhere else. No gradient, no glow, no border.
+           ============================================================ */
+        .zz-layer-left {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 14px;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+            opacity: 0.13;
+        }
+        .zz-layer-left  { left: 0; }
+        
+        .zz-svg {
+            position: absolute;
+            top: -300px;
+            bottom: -300px;
+            width: 100%;
+            height: calc(100% + 600px);
+            animation: zzRun 2.2s linear infinite;
+        }
+        .zz-path {
+            fill: none;
+            stroke: #ff2a3d;
+            stroke-width: 2.2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px #ff2a3d);
+        }
+        @keyframes zzRun {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-300px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Blurry Red Back-Glow Under Glass -->
+    <div class="ambient-backglow">
+        <div class="ambient-orb-1"></div>
+        <div class="ambient-orb-2"></div>
+        <div class="ambient-orb-3"></div>
+        <div class="ambient-orb-4"></div>
+        <div class="ambient-orb-5"></div>
+    </div>
+
+    <div class="container">
+        <!-- Top Navigation -->
+        <header class="topbar">
+            <div class="breadcrumb">
+                devbeast / <span class="active brand-name-text">jev</span>
+            </div>
+            <div class="nav-actions" id="nav_actions_box">
+                <button type="button" class="btn-text" id="btn-nav-docs">docs</button>
+                <button type="button" class="btn-text" id="btn-nav-test">test model</button>
+                <button type="button" class="btn-outline" id="btn-nav-contributor" style="border-color:#333333; font-size:12px; padding:6px 12px; color:#ffffff;">free contributor ✦</button>
+                <button type="button" class="btn-text" id="btn-login-nav">sign in</button>
+                <button type="button" class="btn-primary" id="btn-signup-nav">get started &rarr;</button>
+            </div>
+        </header>
+
+        <!-- Main Hero -->
+        <section class="hero">
+            <div class="hero-left">
+                <h1 class="hero-title brand-name-text">jev</h1>
+                <p class="hero-desc">
+                    <span class="brand-name-text">jev</span> is devbeast's open-weights system one decision model: it answers typed yes/no, choice and score questions about a piece of state in a single non-autoregressive forward pass, across 100+ languages, and never generates text.
+                </p>
+                <div class="repo-bar">
+                    <a id="repo_link" href="https://huggingface.co/devbeast/jev" target="_blank" rel="noopener">devbeast/<span class="brand-name-text">jev</span></a>
+                    <button type="button" class="btn-copy" id="btn-copy-repo" title="Copy repo name">⎘</button>
+                    <span id="repo_copied_msg" style="font-size:11px; color:#10b981; display:none;">copied!</span>
+                </div>
+                <div class="hero-buttons">
+                    <button type="button" class="btn-primary" id="btn-hero-start">start building &rarr;</button>
+                    <button type="button" class="btn-outline" id="btn-hero-test">test model &darr;</button>
+                    <button type="button" class="btn-outline" id="btn-hero-docs">docs</button>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="spiral-frame">
+                    <img src="robot.png" class="spiral-img" alt="Laya AI Robot Decision Engine" onerror="this.src='/robot.png'">
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Metrics Grid -->
+        <section class="metrics-section">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">input &middot; usd / 1m tok</div>
+                    <div class="metric-val"><span>$ <span class="cut-price">00</span></span> <span class="sub">free</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">output &middot; usd / 1m tok</div>
+                    <div class="metric-val"><span>$ <span class="cut-price">00</span></span> <span class="sub">free</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">context window</div>
+                    <div class="metric-val" id="hero_cw_display">8.19k <span class="sub">tokens</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">modalities in &rarr; out</div>
+                    <div class="metric-val">
+                        <div class="modalities-flex">
+                            <span class="mod-icon-t" title="Text (Supported)">T</span>
+                            <span class="mod-icon" title="Image">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </span>
+                            <span class="mod-icon" title="Audio">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <line x1="4" y1="10" x2="4" y2="14"></line>
+                                    <line x1="8" y1="6" x2="8" y2="18"></line>
+                                    <line x1="12" y1="3" x2="12" y2="21"></line>
+                                    <line x1="16" y1="6" x2="16" y2="18"></line>
+                                    <line x1="20" y1="10" x2="20" y2="14"></line>
+                                </svg>
+                            </span>
+                            <span class="mod-icon" title="Video">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                                </svg>
+                            </span>
+                            <span class="mod-arrow">&rarr;</span>
+                            <span class="mod-icon" title="Decision Boolean">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                            <span class="mod-icon" title="Categorical Choice">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                                    <line x1="4" y1="6" x2="20" y2="6"></line>
+                                    <line x1="4" y1="12" x2="20" y2="12"></line>
+                                    <line x1="4" y1="18" x2="20" y2="18"></line>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Decision Playground on Landing Page -->
+        <section class="demo-section" id="demo-section">
+            <div class="section-header">
+                <div class="section-tag">// live decision execution</div>
+                <h2 class="section-title">test single forward-pass decision</h2>
+            </div>
+
+            <div class="demo-panel">
+                <div class="form-group">
+                    <label for="lp_text">state / context to evaluate</label>
+                    <textarea id="lp_text" rows="3">The customer writes: 'My credit card was charged twice for invoice #892. I request an immediate reversal.'</textarea>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="lp_question">question / decision query</label>
+                        <input type="text" id="lp_question" value="Is the customer requesting a refund or chargeback?">
+                    </div>
+                    <div class="form-group">
+                        <label for="lp_type">decision type</label>
+                        <select id="lp_type">
+                            <option value="noul">Boolean (Yes / No / Null)</option>
+                            <option value="choice">Multiple Choice (Custom Options)</option>
+                            <option value="classification">Classification &amp; Routing</option>
+                            <option value="score">Scoring &amp; Severity Rubric</option>
+                            <option value="sentiment">Sentiment Analysis</option>
+                            <option value="risk">Risk &amp; Urgency Level</option>
+                            <option value="intent">Intent Classification</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="lp_options_group" style="display:none;">
+                    <label for="lp_options" id="lp_options_label">options / criteria (comma separated)</label>
+                    <input type="text" id="lp_options" placeholder="billing, tech_support, account_security">
+                </div>
+
+                <div class="demo-actions">
+                    <button type="button" id="btn-lp-execute" class="btn-primary">execute decision &rarr;</button>
+                    <span id="lp_active_user" style="font-size:12px; color:var(--text-faint);">public mode &bull; sign in for unique hits</span>
+                </div>
+
+                <div id="lp_badge_container" class="badge-box" style="margin-top:16px;"></div>
+                <div class="demo-result-box" id="lp_result_box">Ready to execute. Sub-second response on this server...</div>
+            </div>
+        </section>
+
+        <!-- Free Contributor / Early Access Section -->
+        <section class="contributor-section" id="contributor-section" style="margin-bottom: 70px;">
+            <div class="section-header">
+                <div class="section-tag">// open-weights community &middot; early access program</div>
+                <h2 class="section-title">Join as Free Contributor &mdash; Free Future AI Access</h2>
+            </div>
+            
+            <div class="demo-panel" id="contributor-card" style="border-radius: 6px; padding: 28px; background: rgba(8, 8, 10, 0.75);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; margin-bottom: 24px;">
+                    <div style="max-width: 650px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span class="pill pill-active" style="border-color: #444; background: #111; color: #fff;">Free Contributor Tier</span>
+                            <span class="pill" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35);">● 100% Free Forever</span>
+                            <span class="pill" style="color: #60a5fa; border-color: rgba(96, 165, 250, 0.35);">Early Access</span>
+                        </div>
+                        <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 12px;">
+                            Want to join our developer team or access our next-generation AI models for free? Register below as a <b>Free Contributor</b>. We are opening pre-release checkpoints, specialized routing weights, and future multimodal models to contributors at zero cost.
+                        </p>
+                        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                            Register your email below. We will send you confirmation and direct email invitations with free API access keys whenever new AI model weights or features are deployed.
+                        </p>
+                    </div>
+                    <div style="background: #050505; border: 1px solid var(--border); border-radius: 6px; padding: 18px 20px; font-size: 12px; min-width: 260px;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px; letter-spacing: 0.5px;">Contributor Benefits</div>
+                        <div style="color: #e5e5e5; display: flex; flex-direction: column; gap: 8px;">
+                            <div>✦ 100% Free access to future AI models</div>
+                            <div>✦ Pre-release checkpoints before public launch</div>
+                            <div>✦ Higher rate limits on decision endpoints</div>
+                            <div>✦ Direct email announcements with credentials</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="contributor_form" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <div style="flex: 1; min-width: 280px;">
+                        <input type="email" id="contributor_email" placeholder="Enter your email to join as a free contributor..." required style="padding: 12px 14px; font-size: 13px; background: #000000; border: 1px solid var(--border-light); border-radius: 4px; color: #ffffff;">
+                    </div>
+                    <button type="submit" id="btn-submit-contributor" class="btn-primary" style="padding: 12px 24px; font-size: 13px; font-weight: 600; white-space: nowrap;">
+                        Join as Free Contributor &rarr;
+                    </button>
+                </form>
+
+                <div id="contributor_alert" style="margin-top: 16px; display: none; padding: 12px 16px; border-radius: 4px; font-size: 13px; line-height: 1.5;"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>&copy; 2026 devbeast &middot; <span class="brand-name-text">jev</span> open-weights decision model</div>
+            <div style="display:flex; gap:16px;">
+                <button type="button" class="btn-text" id="btn-footer-docs" style="padding:0; font-size:12px;">docs</button>
+                <button type="button" class="btn-text" id="btn-footer-test" style="padding:0; font-size:12px;">test model</button>
+                <a href="dashboard.html" id="footer_dash_link" style="color:var(--text-muted); margin-right:16px;">dashboard</a><a href="api.html" style="color:var(--text-muted); margin-right:16px;">api explorer</a><a href="test.html" style="color:var(--text-muted); margin-right:16px;">test console</a><a href="admin.html" style="color:var(--text-muted);">admin portal</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Docs Modal -->
+    <div class="modal-overlay" id="docs-modal">
+        <div class="modal-window-docs">
+            <button type="button" class="modal-close" id="btn-close-docs-modal">&times;</button>
+            <div class="docs-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+                <div style="flex:1;">
+                    <div class="docs-tag">// api reference & integration guide</div>
+                    <h3 class="docs-title"><span class="brand-name-text">jev</span> Decision API</h3>
+                    <p class="docs-subtitle">
+                        Single non-autoregressive forward pass decision model. Evaluates state context against boolean, choice, and score queries in milliseconds with zero hallucinations.
+                    </p>
+                </div>
+                <button type="button" class="btn-primary" id="btn-docs-get-api" style="padding: 7px 14px; font-size: 12px; font-weight: 600; white-space: nowrap; margin-right: 30px;">
+                    get api key &rarr;
+                </button>
+            </div>
+
+            <div class="docs-section">
+                <div class="docs-section-title">Core Endpoints</div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:-6px; margin-bottom:12px; font-family:'JetBrains Mono',monospace;">
+                    Host Base URL: <code id="docs_base_url_display" style="background:#111; color:#fff; padding:2px 6px; border:1px solid #222; border-radius:3px;">http://187.52.117.2:8000</code>
+                </div>
+                <div class="docs-table-wrapper">
+                    <table class="docs-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                                <th>Auth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span style="color:#60a5fa; font-weight:600;">POST</span></td>
+                                <td><code>/query</code></td>
+                                <td>Execute decision query on state context</td>
+                                <td>Header <code>X-API-Key</code> or Session</td>
+                            </tr>
+                            <tr>
+                                <td><span style="color:#34d399; font-weight:600;">GET</span></td>
+                                <td><code>/test</code></td>
+                                <td>In-memory benchmark test (health check)</td>
+                                <td>Public</td>
+                            </tr>
+                            <tr>
+                                <td><span style="color:#60a5fa; font-weight:600;">POST</span></td>
+                                <td><code>/v1/systemone</code></td>
+                                <td>Raw typed multi-question decision engine</td>
+                                <td>Header <code>X-API-Key</code></td>
+                            </tr>
+                            <tr>
+                                <td><span style="color:#34d399; font-weight:600;">GET</span></td>
+                                <td><code>/settings</code></td>
+                                <td>Model configuration & context window specs</td>
+                                <td>Public</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="docs-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div class="docs-section-title" style="margin-bottom:0;">Implementation Code Examples</div>
+                    <button type="button" class="btn-copy-code" id="btn-copy-doc-code" style="padding:4px 10px;">copy code</button>
+                </div>
+                <div class="code-block-box">
+                    <div class="code-tabs-nav">
+                        <button type="button" class="code-tab-btn active" data-lang="curl">cURL</button>
+                        <button type="button" class="code-tab-btn" data-lang="python">Python</button>
+                        <button type="button" class="code-tab-btn" data-lang="nodejs">Node.js</button>
+                        <button type="button" class="code-tab-btn" data-lang="react">React</button>
+                        <button type="button" class="code-tab-btn" data-lang="php">PHP</button>
+                        <button type="button" class="code-tab-btn" data-lang="dart">Dart / Flutter</button>
+                    </div>
+                    <pre class="code-block-content" id="doc_code_output" style="max-height: 290px;"></pre>
+                </div>
+            </div>
+
+            <div class="docs-section">
+                <div class="docs-section-title">Supported Decision Types</div>
+                <div style="font-size:12px; color:var(--text-muted); line-height:1.7;">
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">1. noul / boolean (Boolean Probability):</strong> Calibrated Yes/No probability for binary statements. Returns <code>summary.verdict</code> ("Yes / True" or "No / False"), <code>probability</code> (0.0 &ndash; 1.0) and confidence score.</p>
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">2. choice (Multiple Choice):</strong> Selects the best match from custom comma-separated options (e.g. <code>option_a, option_b, option_c</code>) with full probability distribution.</p>
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">3. classification (Routing &amp; Categorization):</strong> Directs tickets, leads, or content into categories (e.g. <code>billing, tech_support, sales, account_security</code>).</p>
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">4. score (Ordinal Scoring &amp; Severity Rubric):</strong> Assigns a continuous calibrated rating across ordered rubric tiers (e.g. <code>very low, low, medium, high, critical</code> or numeric scale).</p>
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">5. sentiment (Sentiment Analysis):</strong> Classifies customer sentiment instantaneously (<code>positive, neutral, negative</code>) with zero text generation delay.</p>
+                    <p style="margin-bottom:6px;"><strong style="color:var(--text-main);">6. risk (Risk &amp; Urgency Assessment):</strong> Evaluates operational or security threat level (<code>critical, high, medium, low</code>) for instant dispatch.</p>
+                    <p><strong style="color:var(--text-main);">7. intent (Intent Classification):</strong> Maps user input to actionable intents (<code>inquiry, complaint, upgrade, cancellation, feedback</code>).</p>
+                </div>
+            </div>
+
+            <div class="docs-footer-actions">
+                <button type="button" class="btn-outline" id="btn-docs-scroll-test">⚡ test model in playground &darr;</button>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn-primary" id="btn-docs-get-api-foot">get api key &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Sign In / Sign Up) -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-window">
+            <button type="button" class="modal-close" id="btn-close-modal">&times;</button>
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-btn-signin">Sign In</button>
+                <button type="button" class="auth-tab-btn" id="tab-btn-signup">Create Account</button>
+            </div>
+
+            <div id="auth-alert" class="auth-alert"></div>
+
+            <form id="auth-form">
+                <div class="auth-desc" id="auth-desc-text">
+                    Sign in with your email to access your API keys and unique hit analytics.
+                </div>
+
+                <div class="form-group">
+                    <label for="auth_email">Email Address</label>
+                    <input type="email" id="auth_email" required placeholder="developer@example.com" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="auth_password">Password</label>
+                    <input type="password" id="auth_password" required placeholder="Enter your password" autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="auth-submit-btn" id="btn-auth-submit">Sign In &rarr;</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var basePath = '';
+            var currentBrand = localStorage.getItem('app_brand_name') || 'jev';
+
+            function applyBrand(brand) {
+                if (!brand) return;
+                brand = String(brand).trim();
+                currentBrand = brand;
+                var brandCap = brand.charAt(0).toUpperCase() + brand.slice(1);
+                var brandUpper = brand.toUpperCase();
+
+                document.querySelectorAll('.brand-name-text').forEach(function(el) {
+                    el.textContent = brand;
+                });
+                document.querySelectorAll('.brand-name-cap').forEach(function(el) {
+                    el.textContent = brandCap;
+                });
+                document.querySelectorAll('.brand-name-upper').forEach(function(el) {
+                    el.textContent = brandUpper;
+                });
+                document.title = brandCap + ' \u2014 devbeast';
+                var repoLink = document.getElementById('repo_link');
+                if (repoLink) {
+                    repoLink.href = 'https://huggingface.co/devbeast/' + brand;
+                    var repoSpan = repoLink.querySelector('.brand-name-text');
+                    if (repoSpan) repoSpan.textContent = brand;
+                }
+                var dashBtn = document.getElementById('btn-docs-go-dash');
+                if (dashBtn) {
+                    dashBtn.href = 'dashboard.html';
+                }
+                var footDash = document.getElementById('footer_dash_link');
+                if (footDash) {
+                    footDash.href = 'dashboard.html';
+                }
+            }
+            applyBrand(currentBrand);
+
+            var authMode = 'signin'; // 'signin' or 'signup'
+            var modal = document.getElementById('auth-modal');
+            var alertBox = document.getElementById('auth-alert');
+            var descText = document.getElementById('auth-desc-text');
+            var submitBtn = document.getElementById('btn-auth-submit');
+            var tabSignin = document.getElementById('tab-btn-signin');
+            var tabSignup = document.getElementById('tab-btn-signup');
+
+            // Docs Modal Controls
+            var docsModal = document.getElementById('docs-modal');
+            function openDocsModal() {
+                if (docsModal) docsModal.classList.add('open');
+            }
+            function closeDocsModal() {
+                if (docsModal) docsModal.classList.remove('open');
+            }
+
+            var btnNavDocs = document.getElementById('btn-nav-docs');
+            if (btnNavDocs) btnNavDocs.addEventListener('click', openDocsModal);
+
+            var btnHeroDocs = document.getElementById('btn-hero-docs');
+            if (btnHeroDocs) btnHeroDocs.addEventListener('click', openDocsModal);
+
+            var btnFooterDocs = document.getElementById('btn-footer-docs');
+            if (btnFooterDocs) btnFooterDocs.addEventListener('click', openDocsModal);
+
+            var btnCloseDocsModal = document.getElementById('btn-close-docs-modal');
+            if (btnCloseDocsModal) btnCloseDocsModal.addEventListener('click', closeDocsModal);
+
+            if (docsModal) {
+                docsModal.addEventListener('click', function(e) {
+                    if (e.target === docsModal) closeDocsModal();
+                });
+            }
+
+            // Test Model Smooth Scroll & Focus
+            function scrollToTestModel() {
+                closeDocsModal();
+                var demoSec = document.getElementById('demo-section');
+                var demoPanel = document.querySelector('.demo-panel');
+                if (demoSec) {
+                    demoSec.scrollIntoView({ behavior: 'smooth' });
+                    if (demoPanel) {
+                        demoPanel.classList.remove('demo-panel-highlight');
+                        void demoPanel.offsetWidth; // trigger reflow
+                        demoPanel.classList.add('demo-panel-highlight');
+                    }
+                    var inputField = document.getElementById('lp_text');
+                    if (inputField) {
+                        setTimeout(function() {
+                            inputField.focus();
+                        }, 500);
+                    }
+                }
+            }
+
+            var btnNavTest = document.getElementById('btn-nav-test');
+            if (btnNavTest) btnNavTest.addEventListener('click', scrollToTestModel);
+
+            var btnHeroTest = document.getElementById('btn-hero-test');
+            if (btnHeroTest) btnHeroTest.addEventListener('click', scrollToTestModel);
+
+            var btnFooterTest = document.getElementById('btn-footer-test');
+            if (btnFooterTest) btnFooterTest.addEventListener('click', scrollToTestModel);
+
+            var btnDocsScrollTest = document.getElementById('btn-docs-scroll-test');
+            if (btnDocsScrollTest) btnDocsScrollTest.addEventListener('click', scrollToTestModel);
+
+            var isUserLoggedIn = false;
+            var userApiKey = 'YOUR_API_KEY';
+            var currentDocLang = 'curl';
+            var currentApiHost = 'http://187.52.117.2:8000';
+
+            var docSnippets = {
+                curl: function(bp, k) {
+                    return 'curl -X POST ' + currentApiHost + bp + '/query \\\n' +
+                           '  -H "Content-Type: application/json" \\\n' +
+                           '  -H "X-API-Key: ' + k + '" \\\n' +
+                           '  -d \'{\n' +
+                           '    "text": "The customer writes: My credit card was charged twice for invoice #892. I request an immediate reversal.",\n' +
+                           '    "question": "Is the customer requesting a refund or chargeback?",\n' +
+                           '    "type": "noul"\n' +
+                           '  }\'';
+                },
+                python: function(bp, k) {
+                    return 'import requests\n\n' +
+                           'url = "' + currentApiHost + bp + '/query"\n' +
+                           'headers = {\n' +
+                           '    "Content-Type": "application/json",\n' +
+                           '    "X-API-Key": "' + k + '"\n' +
+                           '}\n' +
+                           'payload = {\n' +
+                           '    "text": "The customer writes: My credit card was charged twice for invoice #892. I request an immediate reversal.",\n' +
+                           '    "question": "Is the customer requesting a refund or chargeback?",\n' +
+                           '    "type": "noul"\n' +
+                           '}\n\n' +
+                           'response = requests.post(url, headers=headers, json=payload)\n' +
+                           'data = response.json()\n' +
+                           'print("Verdict:", data["summary"]["verdict"])\n' +
+                           'print("Probability:", data["summary"]["probability"])\n' +
+                           'print("Latency:", data["execution_ms"], "ms")';
+                },
+                nodejs: function(bp, k) {
+                    return 'const response = await fetch("' + currentApiHost + bp + '/query", {\n' +
+                           '  method: "POST",\n' +
+                           '  headers: {\n' +
+                           '    "Content-Type": "application/json",\n' +
+                           '    "X-API-Key": "' + k + '"\n' +
+                           '  },\n' +
+                           '  body: JSON.stringify({\n' +
+                           '    text: "The customer writes: My credit card was charged twice for invoice #892. I request an immediate reversal.",\n' +
+                           '    question: "Is the customer requesting a refund or chargeback?",\n' +
+                           '    type: "noul"\n' +
+                           '  })\n' +
+                           '});\n\n' +
+                           'const data = await response.json();\n' +
+                           'console.log("Verdict:", data.summary.verdict);\n' +
+                           'console.log("Probability:", data.summary.probability);';
+                },
+                react: function(bp, k) {
+                    return 'import React, { useState } from "react";\n\n' +
+                           'export default function DecisionEvaluation() {\n' +
+                           '  const [verdict, setVerdict] = useState(null);\n' +
+                           '  const [loading, setLoading] = useState(false);\n\n' +
+                           '  const handleEvaluate = async () => {\n' +
+                           '    setLoading(true);\n' +
+                           '    const res = await fetch("' + currentApiHost + bp + '/query", {\n' +
+                           '      method: "POST",\n' +
+                           '      headers: {\n' +
+                           '        "Content-Type": "application/json",\n' +
+                           '        "X-API-Key": "' + k + '"\n' +
+                           '      },\n' +
+                           '      body: JSON.stringify({\n' +
+                           '        text: "User reported fraudulent debit transaction.",\n' +
+                           '        question: "Is this dispute urgent?",\n' +
+                           '        type: "noul"\n' +
+                           '      })\n' +
+                           '    });\n' +
+                           '    const data = await res.json();\n' +
+                           '    setVerdict(data.summary?.verdict);\n' +
+                           '    setLoading(false);\n' +
+                           '  };\n\n' +
+                           '  return (\n' +
+                           '    <div style={{ background: "#000", color: "#fff", padding: 20 }}>\n' +
+                           '      <button onClick={handleEvaluate} disabled={loading}>\n' +
+                           '        {loading ? "Analyzing forward pass..." : "Evaluate Decision"}\n' +
+                           '      </button>\n' +
+                           '      {verdict && <p>Result: {verdict}</p>}\n' +
+                           '    </div>\n' +
+                           '  );\n' +
+                           '}';
+                },
+                php: function(bp, k) {
+                    return '<' + '?php\n' +
+                           '$url = "' + currentApiHost + bp + '/query";\n' +
+                           '$payload = json_encode([\n' +
+                           '    "text" => "The customer writes: My credit card was charged twice for invoice #892.",\n' +
+                           '    "question" => "Is the customer requesting a refund or chargeback?",\n' +
+                           '    "type" => "noul"\n' +
+                           ']);\n\n' +
+                           '$ch = curl_init($url);\n' +
+                           'curl_setopt($ch, CURLOPT_HTTPHEADER, [\n' +
+                           '    "Content-Type": "application/json",\n' +
+                           '    "X-API-Key": "' + k + '"\n' +
+                           ']);\n' +
+                           'curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);\n' +
+                           'curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n' +
+                           '$response = curl_exec($ch);\n' +
+                           'curl_close($ch);\n\n' +
+                           '$result = json_decode($response, true);\n' +
+                           'echo "Verdict: " . $result["summary"]["verdict"] . "\\n";\n' +
+                           'echo "Probability: " . $result["summary"]["probability"] . "\\n";\n' +
+                           '?>';
+                },
+                dart: function(bp, k) {
+                    return 'import "dart:convert";\n' +
+                           'import "package:http/http.dart" as http;\n\n' +
+                           'Future<void> runDecision() async {\n' +
+                           '  final url = Uri.parse("' + currentApiHost + bp + '/query");\n' +
+                           '  final response = await http.post(\n' +
+                           '    url,\n' +
+                           '    headers: {\n' +
+                           '      "Content-Type": "application/json",\n' +
+                           '      "X-API-Key": "' + k + '",\n' +
+                           '    },\n' +
+                           '    body: jsonEncode({\n' +
+                           '      "text": "The customer writes: My credit card was charged twice for invoice #892.",\n' +
+                           '      "question": "Is the customer requesting a refund or chargeback?",\n' +
+                           '      "type": "noul",\n' +
+                           '    }),\n' +
+                           '  );\n\n' +
+                           '  final data = jsonDecode(response.body);\n' +
+                           '  print("Verdict: ${data[\'summary\'][\'verdict\']}");\n' +
+                           '  print("Probability: ${data[\'summary\'][\'probability\']}");\n' +
+                           '}';
+                }
+            };
+
+            function updateDocSnippet(lang) {
+                currentDocLang = lang || currentDocLang;
+                var pre = document.getElementById('doc_code_output');
+                if (pre && docSnippets[currentDocLang]) {
+                    pre.textContent = docSnippets[currentDocLang](basePath, userApiKey);
+                }
+            }
+            updateDocSnippet('curl');
+
+            var codeTabBtns = document.querySelectorAll('.code-tabs-nav .code-tab-btn');
+            codeTabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    codeTabBtns.forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    updateDocSnippet(this.getAttribute('data-lang'));
+                });
+            });
+
+            // Copy Snippet Button in Docs Modal
+            var btnCopyDocCode = document.getElementById('btn-copy-doc-code');
+            if (btnCopyDocCode) {
+                btnCopyDocCode.addEventListener('click', function() {
+                    var codeText = document.getElementById('doc_code_output').textContent;
+                    navigator.clipboard.writeText(codeText).then(function() {
+                        btnCopyDocCode.textContent = 'copied!';
+                        setTimeout(function() { btnCopyDocCode.textContent = 'copy code'; }, 2000);
+                    });
+                });
+            }
+
+            // Get API Key Handlers
+            function handleGetApiKey() {
+                closeDocsModal();
+                if (isUserLoggedIn) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    openModal('signup');
+                }
+            }
+
+            var btnDocsGetApi = document.getElementById('btn-docs-get-api');
+            if (btnDocsGetApi) btnDocsGetApi.addEventListener('click', handleGetApiKey);
+
+            var btnDocsGetApiFoot = document.getElementById('btn-docs-get-api-foot');
+            if (btnDocsGetApiFoot) btnDocsGetApiFoot.addEventListener('click', handleGetApiKey);
+
+            // Copy Repo Link
+            document.getElementById('btn-copy-repo').addEventListener('click', function() {
+                navigator.clipboard.writeText('devbeast/' + currentBrand).then(function() {
+                    var msg = document.getElementById('repo_copied_msg');
+                    msg.style.display = 'inline';
+                    setTimeout(function() { msg.style.display = 'none'; }, 2000);
+                });
+            });
+
+            // Auth Modal Controls
+            function openModal(mode) {
+                authMode = mode || 'signin';
+                alertBox.style.display = 'none';
+                if (authMode === 'signin') {
+                    tabSignin.classList.add('active');
+                    tabSignup.classList.remove('active');
+                    descText.textContent = 'Sign in with your email to access your API keys and unique hit analytics.';
+                    submitBtn.textContent = 'Sign In →';
+                } else {
+                    tabSignup.classList.add('active');
+                    tabSignin.classList.remove('active');
+                    descText.textContent = 'Create a free account to generate your instant API key with tracking.';
+                    submitBtn.textContent = 'Create Account →';
+                }
+                modal.classList.add('open');
+            }
+
+            function closeModal() {
+                modal.classList.remove('open');
+            }
+
+            document.getElementById('btn-login-nav').addEventListener('click', function() { openModal('signin'); });
+            document.getElementById('btn-signup-nav').addEventListener('click', function() { openModal('signup'); });
+            document.getElementById('btn-hero-start').addEventListener('click', function() { openModal('signup'); });
+            document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+            tabSignin.addEventListener('click', function() { openModal('signin'); });
+            tabSignup.addEventListener('click', function() { openModal('signup'); });
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            function scrollToContributor() {
+                var sec = document.getElementById('contributor-section');
+                if (sec) {
+                    sec.scrollIntoView({ behavior: 'smooth' });
+                    var emailInput = document.getElementById('contributor_email');
+                    if (emailInput) {
+                        setTimeout(function() {
+                            emailInput.focus();
+                            emailInput.style.borderColor = '#ffffff';
+                            setTimeout(function() { emailInput.style.borderColor = ''; }, 1800);
+                        }, 450);
+                    }
+                }
+            }
+
+            var btnNavContrib = document.getElementById('btn-nav-contributor');
+            if (btnNavContrib) {
+                btnNavContrib.addEventListener('click', scrollToContributor);
+            }
+
+            // Check if user is already logged in
+            (window.authFetch ? window.authFetch('/user/me') : fetch('/user/me'))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.logged_in) {
+                        var navBox = document.getElementById('nav_actions_box');
+                        navBox.innerHTML = '<button type="button" class="btn-text" id="btn-nav-docs-in">docs</button>' +
+                                           '<button type="button" class="btn-text" id="btn-nav-test-in">test model</button>' +
+                                           '<button type="button" class="btn-outline" id="btn-nav-contrib-in" style="border-color:#333333; font-size:12px; padding:6px 12px; color:#ffffff;">free contributor ✦</button>' +
+                                           '<span style="font-size:12px; color:var(--text-muted);">' + data.user.email + '</span>' +
+                                           '<a href="dashboard.html" class="btn-primary">Dashboard &rarr;</a>';
+                        document.getElementById('btn-nav-docs-in').addEventListener('click', openDocsModal);
+                        document.getElementById('btn-nav-test-in').addEventListener('click', scrollToTestModel);
+                        document.getElementById('btn-nav-contrib-in').addEventListener('click', scrollToContributor);
+                        document.getElementById('lp_active_user').textContent = 'logged in as: ' + data.user.email;
+                        document.getElementById('btn-hero-start').onclick = function() {
+                            window.location.href = 'dashboard.html';
+                        };
+                    }
+                })
+                .catch(function(err) { console.error('Session check failed:', err); });
+
+            // Direct route / hash triggers
+            if (window.location.pathname.endsWith('/docs') || window.location.hash === '#docs') {
+                openDocsModal();
+            } else if (window.location.hash === '#test' || window.location.hash === '#demo-section') {
+                setTimeout(scrollToTestModel, 300);
+            } else if (window.location.hash === '#contributor' || window.location.hash === '#contributor-section') {
+                setTimeout(scrollToContributor, 300);
+            }
+
+            // Handle Free Contributor Form Submit
+            var contribForm = document.getElementById('contributor_form');
+            if (contribForm) {
+                contribForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var emailInput = document.getElementById('contributor_email');
+                    var alertBox = document.getElementById('contributor_alert');
+                    var submitBtn = document.getElementById('btn-submit-contributor');
+                    var email = (emailInput.value || '').trim();
+
+                    if (!email) return;
+
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Registering...';
+                    alertBox.style.display = 'none';
+
+                    (window.authFetch ? window.authFetch : fetch)('/contributor', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Join as Free Contributor →';
+                        alertBox.style.display = 'block';
+
+                        if (data.status === 'success') {
+                            alertBox.style.background = 'rgba(16, 185, 129, 0.12)';
+                            alertBox.style.border = '1px solid #10b981';
+                            alertBox.style.color = '#34d399';
+                            alertBox.innerHTML = '<b>✓ ' + data.message + '</b>';
+                            emailInput.value = '';
+                        } else {
+                            alertBox.style.background = 'rgba(239, 68, 68, 0.12)';
+                            alertBox.style.border = '1px solid #ef4444';
+                            alertBox.style.color = '#f87171';
+                            alertBox.textContent = data.detail || 'An error occurred. Please try again.';
+                        }
+                    })
+                    .catch(function(err) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Join as Free Contributor →';
+                        alertBox.style.display = 'block';
+                        alertBox.style.background = 'rgba(239, 68, 68, 0.12)';
+                        alertBox.style.border = '1px solid #ef4444';
+                        alertBox.style.color = '#f87171';
+                        alertBox.textContent = 'Network error: ' + err.message;
+                    });
+                });
+            }
+
+            // Fetch dynamic settings immediately from server
+            var fetchSettings = (window.authFetch ? window.authFetch('/settings') : fetch('/settings'));
+            fetchSettings
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.brand_name) {
+                        applyBrand(data.brand_name);
+                        localStorage.setItem('app_brand_name', data.brand_name);
+                    }
+                    if (data && data.context_window) {
+                        var cwEl = document.getElementById('hero_cw_display');
+                        if (cwEl) cwEl.innerHTML = data.context_window;
+                    }
+                    if (data && data.api_base_url) {
+                        currentApiHost = data.api_base_url.replace(/\/+$/, '');
+                        var docsHostEl = document.getElementById('docs_base_url_display');
+                        if (docsHostEl) docsHostEl.textContent = currentApiHost;
+                        updateDocSnippet();
+                    }
+                })
+                .catch(function(err) { console.warn('Settings load:', err); });
+
+            // Handle Auth Submit
+            document.getElementById('auth-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alertBox.style.display = 'none';
+
+                var email = document.getElementById('auth_email').value.trim();
+                var password = document.getElementById('auth_password').value;
+
+                if (!email || !password) {
+                    alertBox.textContent = 'Please enter both email and password.';
+                    alertBox.style.display = 'block';
+                    return;
+                }
+
+                submitBtn.textContent = 'Processing...';
+                var endpoint = (authMode === 'signup') ? '/user/signup' : '/user/login';
+
+                var authCall = (window.authFetch ? window.authFetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                }) : fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                }));
+
+                authCall
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    submitBtn.textContent = (authMode === 'signup') ? 'Create Account →' : 'Sign In →';
+                    if (data.status === 'success') {
+                        if (data.token) {
+                            try { localStorage.setItem('laya_user_token', data.token); } catch(e){}
+                        }
+                        if (data.user) {
+                            try { localStorage.setItem('laya_user', JSON.stringify(data.user)); } catch(e){}
+                        }
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alertBox.textContent = data.detail || 'Authentication failed.';
+                        alertBox.style.display = 'block';
+                    }
+                })
+                .catch(function(err) {
+                    submitBtn.textContent = (authMode === 'signup') ? 'Create Account →' : 'Sign In →';
+                    alertBox.textContent = 'Network error: ' + err.message;
+                    alertBox.style.display = 'block';
+                });
+            });
+
+            // Toggle decision type options & presets
+            var lpType = document.getElementById('lp_type');
+            var lpOptsGroup = document.getElementById('lp_options_group');
+            var lpOptsInput = document.getElementById('lp_options');
+            var lpOptsLabel = document.getElementById('lp_options_label');
+
+            var lpTypePresets = {
+                'noul': { show: false, label: '', placeholder: '', value: '', defaultQ: 'Is the customer requesting a refund or chargeback?' },
+                'choice': { show: true, label: 'choices / options (comma separated)', placeholder: 'option_a, option_b, option_c', value: 'option_a, option_b, option_c', defaultQ: 'Select the best matching option' },
+                'classification': { show: true, label: 'target categories / departments', placeholder: 'billing, tech_support, sales, account_security', value: 'billing, tech_support, sales, account_security', defaultQ: 'Which department should handle this request?' },
+                'score': { show: true, label: 'scoring rubric levels (lowest to highest)', placeholder: 'very low, low, medium, high, critical', value: 'very low, low, medium, high, critical', defaultQ: 'Rate the severity or urgency of this situation' },
+                'sentiment': { show: true, label: 'sentiment classes', placeholder: 'positive, neutral, negative', value: 'positive, neutral, negative', defaultQ: 'What is the sentiment of this message?' },
+                'risk': { show: true, label: 'risk & priority levels', placeholder: 'critical, high, medium, low', value: 'critical, high, medium, low', defaultQ: 'What is the risk level or priority of this event?' },
+                'intent': { show: true, label: 'user intent categories', placeholder: 'inquiry, complaint, upgrade, cancellation, feedback', value: 'inquiry, complaint, upgrade, cancellation, feedback', defaultQ: 'What is the primary intent of this statement?' }
+            };
+
+            lpType.addEventListener('change', function() {
+                var config = lpTypePresets[this.value] || { show: true, label: 'options / criteria (comma separated)', placeholder: '', value: '', defaultQ: '' };
+                if (config.show) {
+                    lpOptsGroup.style.display = 'block';
+                    if (lpOptsLabel) lpOptsLabel.textContent = config.label;
+                    lpOptsInput.placeholder = config.placeholder;
+                    lpOptsInput.value = config.value;
+                } else {
+                    lpOptsGroup.style.display = 'none';
+                    lpOptsInput.value = '';
+                }
+                var qInput = document.getElementById('lp_question');
+                if (qInput && config.defaultQ) {
+                    qInput.value = config.defaultQ;
+                }
+            });
+
+            // Execute Landing Page Decision Demo
+            document.getElementById('btn-lp-execute').addEventListener('click', function() {
+                var text = document.getElementById('lp_text').value.trim();
+                var question = document.getElementById('lp_question').value.trim();
+                var type = document.getElementById('lp_type').value;
+                var options = document.getElementById('lp_options').value.trim();
+
+                if (!text || !question) {
+                    alert('Please enter both text context and a decision query.');
+                    return;
+                }
+
+                var resBox = document.getElementById('lp_result_box');
+                var badgeBox = document.getElementById('lp_badge_container');
+                resBox.textContent = 'Running forward pass with ' + currentBrand + ' model...';
+                badgeBox.innerHTML = '';
+
+                var tStart = performance.now();
+                (window.authFetch ? window.authFetch : fetch)('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text, question: question, type: type, options: options })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var elapsed = Math.round(performance.now() - tStart);
+                    resBox.textContent = JSON.stringify(data, null, 2);
+
+                    if (data.summary) {
+                        var html = '';
+                        if (data.summary.verdict) {
+                            var isYes = data.summary.verdict.indexOf('Yes') !== -1;
+                            html += '<span class="pill ' + (isYes ? 'pill-yes' : 'pill-no') + '">Verdict: ' + data.summary.verdict + ' (' + data.summary.probability + ')</span>';
+                        } else if (data.summary.choice) {
+                            html += '<span class="pill pill-choice">Result: ' + data.summary.choice + '</span>';
+                        } else if (data.summary.score !== undefined) {
+                            var labelTxt = data.summary.score_label ? ' (' + data.summary.score_label + ')' : '';
+                            html += '<span class="pill pill-choice">Score: ' + data.summary.score + labelTxt + '</span>';
+                        }
+                        if (data.summary.confidence !== undefined && data.summary.confidence !== null) {
+                            html += '<span class="pill pill-lat">Confidence: ' + Math.round(data.summary.confidence * 100) + '%</span>';
+                        }
+                        html += '<span class="pill pill-lat">⚡ ' + elapsed + 'ms Latency</span>';
+                        if (data.api_tracking) {
+                            html += '<span class="pill pill-lat">API Hits: ' + data.api_tracking.hits + '</span>';
+                        }
+                        badgeBox.innerHTML = html;
+                    }
+                })
+                .catch(function(err) {
+                    resBox.textContent = 'Error: ' + err.message;
+                });
+            });
+        });
+    </script>
+    <!-- Zigzag Edge Lines (Left & Right only, 25% opacity) -->
+    <div class="zz-layer-left">
+        <svg class="zz-svg" preserveAspectRatio="none" viewBox="0 0 16 600">
+            <path class="zz-path" d="M 0 0 L 8 15 L 1 30 L 9 45 L 2 60 L 10 75 L 1 90 L 8 105 L 2 120 L 9 135 L 1 150 L 10 165 L 2 180 L 8 195 L 1 210 L 9 225 L 2 240 L 10 255 L 1 270 L 8 285 L 2 300 L 9 315 L 1 330 L 10 345 L 2 360 L 8 375 L 1 390 L 9 405 L 2 420 L 10 435 L 1 450 L 8 465 L 2 480 L 9 495 L 1 510 L 10 525 L 2 540 L 8 555 L 1 570 L 9 585 L 0 600"/>
+        </svg>
+    </div>
+</body>
+</html>

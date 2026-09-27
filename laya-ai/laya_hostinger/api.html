@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laya AI - Open Decision API Platform</title>
+    <style>
+        :root {
+            --bg-base: #0b1329;
+            --bg-card: #152238;
+            --bg-card-hover: #1c2d4a;
+            --bg-input: #090e1d;
+            --border: #1e3a5f;
+            --border-focus: #38bdf8;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --sidebar-width: 270px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        /* Window Left & Right Glowing Red Borders */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ff2a3d;
+            box-shadow: 0 0 16px 2px rgba(255, 42, 61, 0.8), 0 0 32px 5px rgba(255, 42, 61, 0.45);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        body::before {
+            left: 0;
+        }
+
+        body::after {
+            right: 0;
+        }
+
+        /* Ambient Glass Backdrop Aura */
+        .ambient-backglow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-orb-1 {
+            position: absolute;
+            top: 15%;
+            left: 55%;
+            transform: translateX(-50%);
+            width: 820px;
+            height: 480px;
+            background: radial-gradient(ellipse at center, rgba(255, 42, 61, 0.22) 0%, rgba(255, 42, 61, 0.05) 50%, transparent 75%);
+            filter: blur(85px);
+        }
+
+        .ambient-orb-2 {
+            position: absolute;
+            top: 60%;
+            left: 55%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 520px;
+            background: radial-gradient(ellipse at center, rgba(255, 42, 61, 0.24) 0%, rgba(255, 42, 61, 0.06) 50%, transparent 75%);
+            filter: blur(95px);
+        }
+
+        /* App Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #0e172e;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: transform 0.25s ease-in-out;
+        }
+
+        .sidebar-header {
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 19px;
+            color: var(--accent);
+            letter-spacing: -0.3px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            font-size: 22px;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+        }
+
+        .badge-ver {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .key-indicator {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .key-indicator-title {
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .key-indicator-val {
+            font-family: monospace;
+            color: var(--accent);
+            word-break: break-all;
+            font-size: 12px;
+        }
+
+        .btn-adm-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: #1e293b;
+            color: var(--text-muted);
+            padding: 9px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-adm-link:hover {
+            background: #334155;
+            color: var(--text-main);
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 90;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 65px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(14, 23, 46, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 20px;
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .latency-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #10b981;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .content-body {
+            padding: 24px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* Cards & Panes */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 
+                0 15px 40px -10px rgba(0, 0, 0, 0.7),
+                0 10px 30px -10px rgba(255, 42, 61, 0.22),
+                0 0 50px -15px rgba(255, 42, 61, 0.12);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 8%;
+            right: 8%;
+            height: 24px;
+            background: radial-gradient(ellipse at center, rgba(255, 42, 61, 0.35) 0%, transparent 75%);
+            filter: blur(18px);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.85;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 11px 13px;
+            color: var(--text-main);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Buttons */
+        button, .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        button:hover, .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Output & Badges */
+        pre {
+            background: #060a14;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #34d399;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid var(--border);
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .verdict-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .verdict-yes {
+            background: #064e3b;
+            color: #34d399;
+            border: 1px solid #059669;
+        }
+
+        .verdict-no {
+            background: #7f1d1d;
+            color: #f87171;
+            border: 1px solid #dc2626;
+        }
+
+        .verdict-choice {
+            background: #1e3a8a;
+            color: #60a5fa;
+            border: 1px solid #2563eb;
+        }
+
+        /* API Key Banner */
+        .key-banner {
+            background: #091326;
+            border: 1px dashed var(--accent);
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .key-banner-text {
+            font-family: monospace;
+            font-size: 15px;
+            color: var(--accent);
+            word-break: break-all;
+            font-weight: 600;
+        }
+
+        /* Code snippets tabs */
+        .code-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Stat cards in info tab */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .stat-box-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-box-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Documentation Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #090e1d;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .method-badge {
+            background: #0369a1;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .code-pill {
+            font-family: monospace;
+            background: var(--bg-input);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 850px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-backdrop.open {
+                display: block;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: inline-flex;
+            }
+            .content-body {
+                padding: 16px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .key-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Ambient Blurry Red Back-Glow Under Glass -->
+    <div class="ambient-backglow">
+        <div class="ambient-orb-1"></div>
+        <div class="ambient-orb-2"></div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="api.html" class="brand">
+                    <span class="brand-icon">⚡</span>
+                    <span>Laya AI</span>
+                </a>
+                <span class="badge-ver">v1.0 API</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button type="button" class="nav-item active" data-tab="tab-playground">
+                    <span>💬</span> <span>Decision Playground</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-apikey">
+                    <span>🔑</span> <span>Get Free API Key</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-code">
+                    <span>💻</span> <span>Code Integration</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-docs">
+                    <span>📖</span> <span>API Documentation</span>
+                </button>
+                <button type="button" class="nav-item" data-tab="tab-architecture">
+                    <span>⚡</span> <span>Model Architecture</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="key-indicator">
+                    <div class="key-indicator-title">
+                        <span>Active API Key</span>
+                        <span id="key_status_pill" style="color:var(--warning); font-size:10px;">● Public Mode</span>
+                    </div>
+                    <div class="key-indicator-val" id="sidebar_key_display">No key saved</div>
+                </div>
+                <a href="admin.html" target="_blank" class="btn-adm-link">
+                    <span>🔐</span> <span>Admin Panel ↗</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile Drawer Backdrop -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation">☰</button>
+                    <div class="topbar-title" id="topbar-title">Decision Playground</div>
+                </div>
+                <div class="topbar-actions">
+                    <div class="latency-badge">
+                        <span class="pulse-dot"></span>
+                        <span>Sub-Second Response (&lt; 1s)</span>
+                    </div>
+                    <button type="button" id="btn-quick-key" class="btn btn-sm btn-outline">🔑 Get API Key</button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- TAB 1: DECISION PLAYGROUND -->
+                <section class="tab-pane active" id="tab-playground">
+                    <div class="card">
+                        <h2 class="card-title"><span>🎯</span> <span>Interactive Decision Playground</span></h2>
+                        <p class="card-desc">Evaluate context and query instantaneously via non-autoregressive decision inference.</p>
+
+                        <div class="form-group">
+                            <label for="p_text">Input Context / Document / Statement</label>
+                            <textarea id="p_text" rows="4" placeholder="Enter text to analyze... e.g. Customer: 'My order #4891 arrived broken. I demand an immediate refund or replacement!'">The user account shows 5 failed password attempts from IP 192.168.1.1 within 60 seconds.</textarea>
+                        </div>
+
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="p_question">Question / Evaluation Goal</label>
+                                <input type="text" id="p_question" value="Is this potential malicious brute-force activity?" placeholder="e.g. Is this customer angry?">
+                            </div>
+                            <div class="form-group">
+                                <label for="p_type">Decision Type</label>
+                                <select id="p_type">
+                                    <option value="noul">Boolean (Yes / No / Null)</option>
+                                    <option value="choice">Multiple Choice (Custom Options)</option>
+                                    <option value="classification">Classification &amp; Routing</option>
+                                    <option value="score">Scoring &amp; Severity Rubric</option>
+                                    <option value="sentiment">Sentiment Analysis</option>
+                                    <option value="risk">Risk &amp; Urgency Level</option>
+                                    <option value="intent">Intent Classification</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="p_options_group" style="display:none;">
+                            <label for="p_options" id="p_options_label">Choices / Criteria (Comma-separated)</label>
+                            <input type="text" id="p_options" placeholder="e.g. High Risk, Medium Risk, Low Risk">
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+                            <button type="button" id="btn-run-playground" class="btn btn-success">
+                                <span>⚡</span> <span>Execute Decision</span>
+                            </button>
+                            <span id="active_key_notice" style="font-size:12px; color:var(--text-muted);">
+                                Using Public Key
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h3 class="card-title" style="margin-bottom:0;"><span>📊</span> <span>Decision Result</span></h3>
+                            <button type="button" id="btn-copy-result" class="btn btn-sm btn-outline">📋 Copy JSON</button>
+                        </div>
+                        <div id="verdict_badge_container"></div>
+                        <pre id="playground_result">Results will appear here in sub-second once executed...</pre>
+                    </div>
+                </section>
+
+                <!-- TAB 2: GET FREE API KEY -->
+                <section class="tab-pane" id="tab-apikey">
+                    <div class="card">
+                        <h2 class="card-title"><span>🔑</span> <span>Generate Free API Key</span></h2>
+                        <p class="card-desc">Enter your email to generate your dedicated API key. Includes rate tracking, persistence, and unlimited testing.</p>
+
+                        <div class="form-group">
+                            <label for="key_email">Your Email Address</label>
+                            <input type="email" id="key_email" placeholder="you@company.com" autocomplete="email">
+                        </div>
+
+                        <button type="button" id="btn-generate-key" class="btn btn-success">
+                            <span>✨</span> <span>Generate API Key</span>
+                        </button>
+
+                        <div id="generated_key_wrapper" style="display:none;" class="key-banner">
+                            <div>
+                                <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+                                    Registered to: <b id="registered_email_label" style="color:white;"></b>
+                                </div>
+                                <div class="key-banner-text" id="generated_key_text">sk_...</div>
+                            </div>
+                            <button type="button" id="btn-copy-generated-key" class="btn btn-sm btn-outline">📋 Copy Key</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title"><span>🛡️</span> <span>API Key Benefits</span></h3>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:14px;">
+                            <div class="stat-box">
+                                <div class="stat-box-title">Authentication</div>
+                                <div style="font-size:13px; color:var(--text-main);">Pass in <code class="code-pill">X-API-Key</code> HTTP Header or query parameter.</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-title">Persistence</div>
+                                <div style="font-size:13px; color:var(--text-main);">Auto-saved to your browser and code generators automatically.</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-title">Usage Tracking</div>
+                                <div style="font-size:13px; color:var(--text-main);">Accurate hit metrics tracked in high-speed SQLite on VPS.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: CODE INTEGRATION -->
+                <section class="tab-pane" id="tab-code">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h2 class="card-title" style="margin-bottom:0;"><span>💻</span> <span>Integration Snippets</span></h2>
+                            <button type="button" id="btn-copy-snippet" class="btn btn-sm btn-outline">📋 Copy Snippet</button>
+                        </div>
+                        <p class="card-desc">Ready-to-use production code snippets with your active API key automatically inserted.</p>
+
+                        <div class="code-tabs">
+                            <button type="button" class="tab-btn active" data-lang="curl">cURL</button>
+                            <button type="button" class="tab-btn" data-lang="python">Python</button>
+                            <button type="button" class="tab-btn" data-lang="js">Node.js / JS</button>
+                            <button type="button" class="tab-btn" data-lang="php">PHP</button>
+                            <button type="button" class="tab-btn" data-lang="go">Go</button>
+                        </div>
+
+                        <pre id="snippet_output"></pre>
+                    </div>
+                </section>
+
+                <!-- TAB 4: API DOCUMENTATION -->
+                <section class="tab-pane" id="tab-docs">
+                    <div class="card">
+                        <h2 class="card-title"><span>📖</span> <span>API Reference</span></h2>
+                        <p class="card-desc">Overview of all endpoints hosted on Hostinger VPS (<code class="code-pill">http://187.52.117.2:8000</code>).</p>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Endpoint</th>
+                                        <th>Description</th>
+                                        <th>Auth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="method-badge">POST / GET</span></td>
+                                        <td><code class="code-pill">/query</code></td>
+                                        <td>Execute decision inference with custom context, question & type.</td>
+                                        <td>Optional (X-API-Key)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="method-badge">POST</span></td>
+                                        <td><code class="code-pill">/generate-key</code></td>
+                                        <td>Generate and register a free API key with email.</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="method-badge">GET</span></td>
+                                        <td><code class="code-pill">/api/test</code></td>
+                                        <td>Instant health check & async predict test (sub-200ms).</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="method-badge">GET</span></td>
+                                        <td><code class="code-pill">/status</code></td>
+                                        <td>Model weights, device type (CPU), and PyTorch runtime.</td>
+                                        <td>Public</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title"><span>📬</span> <span>Query Payload Specification</span></h3>
+                        <p class="card-desc">Send JSON body to <code class="code-pill">POST /query</code> with the following schema:</p>
+                        <pre>{
+  "text": "Context paragraph or document to evaluate (string, required)",
+  "question": "Question or condition to test (string, required)",
+  "type": "noul | choice (string, default: 'noul')",
+  "options": "Comma-separated options if type is choice (string, optional)"
+}</pre>
+                    </div>
+                </section>
+
+                <!-- TAB 5: ARCHITECTURE -->
+                <section class="tab-pane" id="tab-architecture">
+                    <div class="card">
+                        <h2 class="card-title"><span>⚡</span> <span>Model Architecture & System 1</span></h2>
+                        <p class="card-desc">Why Laya AI outperforms traditional generative LLMs in decision workflows.</p>
+
+                        <div class="stat-grid">
+                            <div class="stat-box">
+                                <div class="stat-box-title">Server Latency</div>
+                                <div class="stat-box-val">~500ms</div>
+                                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Hostinger 2-vCPU CPU mode (&lt;150ms on GPU).</p>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-title">Hallucination</div>
+                                <div class="stat-box-val" style="color:var(--success);">0%</div>
+                                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Direct logit classification and probabilistic scoring.</p>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-box-title">Hosting</div>
+                                <div class="stat-box-val" style="color:var(--text-main);">Self-Hosted</div>
+                                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Hostinger KVM 2 VPS on CPU, 0 external API cost.</p>
+                            </div>
+                        </div>
+
+                        <div style="font-size:14px; color:#cbd5e1; line-height:1.7;">
+                            <p style="margin-bottom:12px;">
+                                Traditional LLMs (GPT-4, Claude) process decision making via autoregressive generation: they must generate tokens one by one, introducing latency (2-5 seconds), high token costs, and risk of hallucination.
+                            </p>
+                            <p>
+                                <b>Laya AI</b> implements a non-autoregressive System 1 classifier. By evaluating the input context and question in a single forward pass, it yields deterministic decisions, probability scores, and typed classifications in sub-second (~500ms on this 2 vCPU server, and &lt;150ms on GPU hardware).
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.getElementById('sidebar');
+            var backdrop = document.getElementById('sidebar-backdrop');
+            var menuToggle = document.getElementById('menu-toggle');
+            var topbarTitle = document.getElementById('topbar-title');
+
+            // Mobile toggle
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                backdrop.classList.toggle('open');
+            }
+            menuToggle.addEventListener('click', toggleSidebar);
+            backdrop.addEventListener('click', toggleSidebar);
+
+            // Tab Switching
+            var navButtons = document.querySelectorAll('.nav-item[data-tab]');
+            var tabPanes = document.querySelectorAll('.tab-pane');
+            var tabTitles = {
+                'tab-playground': 'Decision Playground',
+                'tab-apikey': 'Get Free API Key',
+                'tab-code': 'Code Integration Snippets',
+                'tab-docs': 'API Reference & Specs',
+                'tab-architecture': 'Model Architecture & System 1'
+            };
+
+            navButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var targetTab = this.getAttribute('data-tab');
+                    navButtons.forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+
+                    tabPanes.forEach(function(p) { p.classList.remove('active'); });
+                    var targetPane = document.getElementById(targetTab);
+                    if (targetPane) targetPane.classList.add('active');
+
+                    topbarTitle.textContent = tabTitles[targetTab] || 'Laya Platform';
+
+                    // Close mobile sidebar
+                    sidebar.classList.remove('open');
+                    backdrop.classList.remove('open');
+                });
+            });
+
+            // Quick button to open API key tab
+            document.getElementById('btn-quick-key').addEventListener('click', function() {
+                document.querySelector('.nav-item[data-tab="tab-apikey"]').click();
+            });
+
+            // Handle API Key Persistence
+            var activeApiKey = localStorage.getItem('auth_api_key') || localStorage.getItem('laya_api_key') || '';
+            function updateApiKeyDisplay() {
+                var sidebarDisplay = document.getElementById('sidebar_key_display');
+                var statusPill = document.getElementById('key_status_pill');
+                var activeNotice = document.getElementById('active_key_notice');
+
+                if (activeApiKey) {
+                    sidebarDisplay.textContent = activeApiKey.substring(0, 14) + '...';
+                    sidebarDisplay.title = activeApiKey;
+                    statusPill.textContent = '● Key Active';
+                    statusPill.style.color = 'var(--success)';
+                    activeNotice.textContent = 'Active Key: ' + activeApiKey.substring(0, 10) + '...';
+                    activeNotice.style.color = 'var(--accent)';
+                } else {
+                    sidebarDisplay.textContent = 'No key saved';
+                    statusPill.textContent = '● Public Mode';
+                    statusPill.style.color = 'var(--warning)';
+                    activeNotice.textContent = 'Using Public Key';
+                    activeNotice.style.color = 'var(--text-muted)';
+                }
+            }
+            updateApiKeyDisplay();
+
+            // Toggle choices field on playground & presets
+            var pTypeSelect = document.getElementById('p_type');
+            var pOptionsGroup = document.getElementById('p_options_group');
+            var pOptionsInput = document.getElementById('p_options');
+            var pOptionsLabel = document.getElementById('p_options_label');
+
+            var apiTypePresets = {
+                'noul': { show: false, label: '', placeholder: '', value: '', defaultQ: 'Is this potential malicious brute-force activity?' },
+                'choice': { show: true, label: 'Choices / Options (comma separated)', placeholder: 'high risk, medium risk, low risk', value: 'high risk, medium risk, low risk', defaultQ: 'Select the best matching risk category' },
+                'classification': { show: true, label: 'Target Categories / Departments', placeholder: 'billing, tech_support, sales, account_security', value: 'billing, tech_support, sales, account_security', defaultQ: 'Which department should handle this request?' },
+                'score': { show: true, label: 'Scoring Rubric Levels (lowest to highest)', placeholder: 'very low, low, medium, high, critical', value: 'very low, low, medium, high, critical', defaultQ: 'Rate the technical severity of this incident' },
+                'sentiment': { show: true, label: 'Sentiment Classes', placeholder: 'positive, neutral, negative', value: 'positive, neutral, negative', defaultQ: 'What is the sentiment of this text?' },
+                'risk': { show: true, label: 'Risk & Priority Levels', placeholder: 'critical, high, medium, low', value: 'critical, high, medium, low', defaultQ: 'Assess the threat level and priority' },
+                'intent': { show: true, label: 'Intent Categories', placeholder: 'inquiry, complaint, upgrade, cancellation, feedback', value: 'inquiry, complaint, upgrade, cancellation, feedback', defaultQ: 'What is the primary customer intent?' }
+            };
+
+            pTypeSelect.addEventListener('change', function() {
+                var config = apiTypePresets[this.value] || { show: true, label: 'Choices / Criteria (comma separated)', placeholder: '', value: '', defaultQ: '' };
+                if (config.show) {
+                    pOptionsGroup.style.display = 'block';
+                    if (pOptionsLabel) pOptionsLabel.textContent = config.label;
+                    pOptionsInput.placeholder = config.placeholder;
+                    pOptionsInput.value = config.value;
+                } else {
+                    pOptionsGroup.style.display = 'none';
+                    pOptionsInput.value = '';
+                }
+                var qInput = document.getElementById('p_question');
+                if (qInput && config.defaultQ) {
+                    qInput.value = config.defaultQ;
+                }
+            });
+
+            // Run Playground Decision
+            document.getElementById('btn-run-playground').addEventListener('click', function() {
+                var text = document.getElementById('p_text').value.trim();
+                var question = document.getElementById('p_question').value.trim();
+                var type = document.getElementById('p_type').value;
+                var options = document.getElementById('p_options').value.trim();
+
+                if (!text || !question) {
+                    alert('Please enter both context text and a question!');
+                    return;
+                }
+
+                var resPre = document.getElementById('playground_result');
+                var badgeBox = document.getElementById('verdict_badge_container');
+                resPre.textContent = 'Running inference with Laya model...';
+                badgeBox.innerHTML = '';
+
+                var headers = { 'Content-Type': 'application/json' };
+                if (activeApiKey) {
+                    headers['X-API-Key'] = activeApiKey;
+                }
+
+                var startTime = performance.now();
+
+                fetch('/query', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ text: text, question: question, type: type, options: options })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var elapsed = Math.round(performance.now() - startTime);
+                    resPre.textContent = JSON.stringify(data, null, 2);
+                    if (data.summary) {
+                        var verdictHtml = '';
+                        if (data.summary.verdict) {
+                            var isYes = data.summary.verdict.indexOf('Yes') !== -1;
+                            verdictHtml = '<span class="verdict-tag ' + (isYes ? 'verdict-yes' : 'verdict-no') + '">Verdict: ' + data.summary.verdict + ' (' + data.summary.probability + ')</span>';
+                        } else if (data.summary.choice) {
+                            verdictHtml = '<span class="verdict-tag verdict-choice">Result: ' + data.summary.choice + '</span>';
+                        } else if (data.summary.score !== undefined) {
+                            var labelTxt = data.summary.score_label ? ' (' + data.summary.score_label + ')' : '';
+                            verdictHtml = '<span class="verdict-tag verdict-choice">Score: ' + data.summary.score + labelTxt + '</span>';
+                        }
+                        if (data.summary.confidence !== undefined && data.summary.confidence !== null) {
+                            verdictHtml += ' <span style="display:inline-block; margin-left:8px; padding:6px 12px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); border-radius:6px; font-size:13px; font-weight:600; color:var(--text-main);">Confidence: ' + Math.round(data.summary.confidence * 100) + '%</span>';
+                        }
+                        verdictHtml += ' <span style="display:inline-block; margin-left:8px; padding:6px 12px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); border-radius:6px; font-size:13px; font-weight:700; color:var(--accent);">⚡ Latency: ' + elapsed + 'ms</span>';
+                        badgeBox.innerHTML = verdictHtml;
+                    }
+                })
+                .catch(function(err) {
+                    resPre.textContent = 'Error: ' + err.message;
+                });
+            });
+
+            // Copy Playground Result
+            document.getElementById('btn-copy-result').addEventListener('click', function() {
+                var resText = document.getElementById('playground_result').textContent;
+                navigator.clipboard.writeText(resText).then(function() {
+                    alert('Result copied to clipboard!');
+                });
+            });
+
+            // Generate Key
+            document.getElementById('btn-generate-key').addEventListener('click', function() {
+                var emailInput = document.getElementById('key_email');
+                var email = emailInput.value.trim();
+                if (!email || email.indexOf('@') === -1) {
+                    alert('Please enter a valid email address!');
+                    return;
+                }
+
+                var btn = this;
+                btn.textContent = 'Generating...';
+
+                fetch('/generate-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    btn.textContent = '✨ Generate API Key';
+                    if (data.status === 'success') {
+                        activeApiKey = data.api_key;
+                        localStorage.setItem('auth_api_key', activeApiKey); localStorage.setItem('laya_api_key', activeApiKey);
+                        document.getElementById('registered_email_label').textContent = data.email;
+                        document.getElementById('generated_key_text').textContent = data.api_key;
+                        document.getElementById('generated_key_wrapper').style.display = 'flex';
+                        updateApiKeyDisplay();
+                        updateSnippets(currentLang);
+                    } else {
+                        alert('Error: ' + (data.detail || 'Could not generate key'));
+                    }
+                })
+                .catch(function(err) {
+                    btn.textContent = '✨ Generate API Key';
+                    alert('Error: ' + err.message);
+                });
+            });
+
+            // Copy Generated Key
+            document.getElementById('btn-copy-generated-key').addEventListener('click', function() {
+                var keyText = document.getElementById('generated_key_text').textContent;
+                navigator.clipboard.writeText(keyText).then(function() {
+                    alert('API Key copied to clipboard!');
+                });
+            });
+
+            // Code Integration Snippets
+            var currentApiHost = 'http://187.52.117.2:8000';
+            var currentLang = 'curl';
+            var snippets = {
+                curl: function(k) {
+                    var keyVal = k || 'YOUR_API_KEY';
+                    return "curl -X POST " + currentApiHost + "/query \\\n" +
+                           "  -H 'Content-Type: application/json' \\\n" +
+                           "  -H 'X-API-Key: " + keyVal + "' \\\n" +
+                           "  -d '{\n" +
+                           "    \"text\": \"My credit card was charged twice for the subscription.\",\n" +
+                           "    \"question\": \"Is the user requesting a refund?\",\n" +
+                           "    \"type\": \"noul\"\n" +
+                           "  }'";
+                },
+                python: function(k) {
+                    var keyVal = k || 'YOUR_API_KEY';
+                    return "import requests\n\n" +
+                           "url = '" + currentApiHost + "/query'\n" +
+                           "headers = {\n" +
+                           "    'Content-Type': 'application/json',\n" +
+                           "    'X-API-Key': '" + keyVal + "'\n" +
+                           "}\n" +
+                           "payload = {\n" +
+                           "    'text': 'My credit card was charged twice for the subscription.',\n" +
+                           "    'question': 'Is the user requesting a refund?',\n" +
+                           "    'type': 'noul'\n" +
+                           "}\n\n" +
+                           "response = requests.post(url, json=payload, headers=headers)\n" +
+                           "data = response.json()\n" +
+                           "print('Verdict:', data['summary']['verdict'])\n" +
+                           "print('Probability:', data['summary']['probability'])";
+                },
+                js: function(k) {
+                    var keyVal = k || 'YOUR_API_KEY';
+                    return "const response = await fetch('" + currentApiHost + "/query', {\n" +
+                           "  method: 'POST',\n" +
+                           "  headers: {\n" +
+                           "    'Content-Type': 'application/json',\n" +
+                           "    'X-API-Key': '" + keyVal + "'\n" +
+                           "  },\n" +
+                           "  body: JSON.stringify({\n" +
+                           "    text: 'My credit card was charged twice for the subscription.',\n" +
+                           "    question: 'Is the user requesting a refund?',\n" +
+                           "    type: 'noul'\n" +
+                           "  })\n" +
+                           "});\n\n" +
+                           "const data = await response.json();\n" +
+                           "console.log('Verdict:', data.summary.verdict);\n" +
+                           "console.log('Probability:', data.summary.probability);";
+                },
+                php: function(k) {
+                    var keyVal = k || 'YOUR_API_KEY';
+                    return "<" + "?php\n" +
+                           "$ch = curl_init('" + currentApiHost + "/query');\n" +
+                           "$payload = json_encode([\n" +
+                           "    'text' => 'My credit card was charged twice for the subscription.',\n" +
+                           "    'question' => 'Is the user requesting a refund?',\n" +
+                           "    'type' => 'noul'\n" +
+                           "]);\n" +
+                           "curl_setopt($ch, CURLOPT_HTTPHEADER, [\n" +
+                           "    'Content-Type: application/json',\n" +
+                           "    'X-API-Key': " + keyVal + "'\n" +
+                           "]);\n" +
+                           "curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);\n" +
+                           "curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n" +
+                           "$response = curl_exec($ch);\n" +
+                           "curl_close($ch);\n" +
+                           "$data = json_decode($response, true);\n" +
+                           "echo $data['summary']['verdict'];";
+                },
+                go: function(k) {
+                    var keyVal = k || 'YOUR_API_KEY';
+                    return "package main\n\n" +
+                           "import (\n" +
+                           "    \"bytes\"\n" +
+                           "    \"fmt\"\n" +
+                           "    \"net/http\"\n" +
+                           "    \"io\"\n" +
+                           ")\n\n" +
+                           "func main() {\n" +
+                           "    jsonData := []byte(`{\n" +
+                           "        \"text\": \"My credit card was charged twice for the subscription.\",\n" +
+                           "        \"question\": \"Is the user requesting a refund?\",\n" +
+                           "        \"type\": \"noul\"\n" +
+                           "    }`)\n\n" +
+                           "    req, _ := http.NewRequest(\"POST\", \"" + currentApiHost + "/query\", bytes.NewBuffer(jsonData))\n" +
+                           "    req.Header.Set(\"Content-Type\", \"application/json\")\n" +
+                           "    req.Header.Set(\"X-API-Key\", \"" + keyVal + "\")\n\n" +
+                           "    client := &http.Client{}\n" +
+                           "    resp, _ := client.Do(req)\n" +
+                           "    defer resp.Body.Close()\n" +
+                           "    body, _ := io.ReadAll(resp.Body)\n" +
+                           "    fmt.Println(string(body))\n" +
+                           "}";
+                }
+            };
+
+            function updateSnippets(lang) {
+                currentLang = lang;
+                var snippetPre = document.getElementById('snippet_output');
+                snippetPre.textContent = snippets[lang](activeApiKey);
+            }
+
+            var tabBtns = document.querySelectorAll('.code-tabs .tab-btn');
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    updateSnippets(this.getAttribute('data-lang'));
+                });
+            });
+
+            document.getElementById('btn-copy-snippet').addEventListener('click', function() {
+                var codeText = document.getElementById('snippet_output').textContent;
+                navigator.clipboard.writeText(codeText).then(function() {
+                    alert('Code snippet copied to clipboard!');
+                });
+            });
+
+            // Initial render
+            updateSnippets('curl');
+        });
+    </script>
+</body>
+</html>

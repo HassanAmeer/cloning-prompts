@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jev AI &mdash; Decision Test Console</title>
+    <meta name="description" content="Jev AI Live Decision Engine Test Console. Run non-autoregressive forward pass benchmarks.">
+    <script src="config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --text-faint: #555555;
+            --border: #222222;
+            --border-light: #333333;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+
+            /* Dynamic Border Controls */
+            --border-w: 5%;
+            --line-opacity: 0.85;
+            --gradient-opacity: 0.85;
+            --glass-opacity: 1;
+            --glass-blur: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ============================================================
+           SEAMLESS MELTING RED-TO-BLACK EDGE GLOW & GLASSMORPHISM
+           Zero hard containers, zero dividing lines.
+           Smoothly dissolves/melts directly into black body.
+           ============================================================ */
+
+        /* Full Background Melting Gradient Layer */
+        .melting-edge-background {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-color: #000000;
+            opacity: var(--gradient-opacity);
+            transition: opacity 0.05s ease;
+            background-image:
+                /* Left Edge Red Melting Seamlessly Into Black */
+                linear-gradient(to right,
+                    rgba(255, 42, 61, 1) 0%,
+                    rgba(195, 22, 38, 0.65) 1.2%,
+                    rgba(135, 14, 24, 0.38) 2.4%,
+                    rgba(75, 7, 13, 0.16) 3.6%,
+                    rgba(30, 3, 6, 0.04) 4.8%,
+                    rgba(0, 0, 0, 0) var(--border-w)),
+                /* Right Edge Red Melting Seamlessly Into Black */
+                linear-gradient(to left,
+                    rgba(255, 42, 61, 1) 0%,
+                    rgba(195, 22, 38, 0.65) 1.2%,
+                    rgba(135, 14, 24, 0.38) 2.4%,
+                    rgba(75, 7, 13, 0.16) 3.6%,
+                    rgba(30, 3, 6, 0.04) 4.8%,
+                    rgba(0, 0, 0, 0) var(--border-w));
+        }
+
+        /* Solid Glowing Neon Red Line at left: 0 */
+        .neon-line-left {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 2.5px;
+            background: #ff2a3d;
+            box-shadow:
+                0 0 10px 1px #ff2a3d,
+                0 0 25px 4px rgba(255, 42, 61, 0.8);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: var(--line-opacity);
+            transition: opacity 0.05s ease;
+        }
+
+        /* Solid Glowing Neon Red Line at right: 0 */
+        .neon-line-right {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 2.5px;
+            background: #ff2a3d;
+            box-shadow:
+                0 0 10px 1px #ff2a3d,
+                0 0 25px 4px rgba(255, 42, 61, 0.8);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: var(--line-opacity);
+            transition: opacity 0.05s ease;
+        }
+
+        /* Left Melting Glassmorphism Blur (Dissolves smoothly into background) */
+        .melting-glass-left {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: calc(var(--border-w) * 1.6);
+            pointer-events: none;
+            z-index: 1;
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            opacity: var(--glass-opacity);
+            transition: opacity 0.05s ease;
+            -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 65%, transparent 100%);
+            mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 65%, transparent 100%);
+        }
+
+        /* Right Melting Glassmorphism Blur (Dissolves smoothly into background) */
+        .melting-glass-right {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: calc(var(--border-w) * 1.6);
+            pointer-events: none;
+            z-index: 1;
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            opacity: var(--glass-opacity);
+            transition: opacity 0.05s ease;
+            -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 65%, transparent 100%);
+            mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 65%, transparent 100%);
+        }
+
+        /* ============================================================
+           FLAME & ZIGZAG ANIMATION STYLES
+           ============================================================ */
+
+        /* --- Living Flame Effect Layers --- */
+        .flame-layer-left,
+        .flame-layer-right {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: calc(var(--border-w) * 1.6);
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow: hidden;
+        }
+
+        .flame-layer-left {
+            left: 0;
+            -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 35%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+            mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 35%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+        }
+
+        .flame-layer-right {
+            right: 0;
+            -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 35%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+            mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 35%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+        }
+
+        .flame-tongues-left,
+        .flame-tongues-right {
+            position: absolute;
+            top: -600px;
+            left: 0;
+            right: 0;
+            bottom: -600px;
+            background-repeat: repeat-y;
+        }
+
+        .flame-tongues-left {
+            background-image:
+                radial-gradient(ellipse 90% 12% at 0% 10%, rgba(255, 60, 40, 0.8), transparent 70%),
+                radial-gradient(ellipse 100% 18% at 0% 28%, rgba(255, 120, 40, 0.85), transparent 75%),
+                radial-gradient(ellipse 85% 14% at 0% 45%, rgba(255, 42, 61, 0.9), transparent 70%),
+                radial-gradient(ellipse 95% 20% at 0% 64%, rgba(255, 90, 30, 0.85), transparent 75%),
+                radial-gradient(ellipse 85% 15% at 0% 82%, rgba(255, 30, 50, 0.8), transparent 70%);
+            background-size: 100% 600px;
+            animation: flameFlowUp var(--flame-speed, 3.8s) linear infinite;
+        }
+
+        .flame-tongues-right {
+            background-image:
+                radial-gradient(ellipse 90% 12% at 100% 10%, rgba(255, 60, 40, 0.8), transparent 70%),
+                radial-gradient(ellipse 100% 18% at 100% 28%, rgba(255, 120, 40, 0.85), transparent 75%),
+                radial-gradient(ellipse 85% 14% at 100% 45%, rgba(255, 42, 61, 0.9), transparent 70%),
+                radial-gradient(ellipse 95% 20% at 100% 64%, rgba(255, 90, 30, 0.85), transparent 75%),
+                radial-gradient(ellipse 85% 15% at 100% 82%, rgba(255, 30, 50, 0.8), transparent 70%);
+            background-size: 100% 600px;
+            animation: flameFlowUp var(--flame-speed, 3.8s) linear infinite;
+        }
+
+        .flame-shimmer-left,
+        .flame-shimmer-right {
+            position: absolute;
+            top: -420px;
+            left: 0;
+            right: 0;
+            bottom: -420px;
+            background-repeat: repeat-y;
+            mix-blend-mode: screen;
+        }
+
+        .flame-shimmer-left {
+            background-image:
+                radial-gradient(ellipse 70% 8% at 0% 18%, rgba(255, 180, 60, 0.7), transparent 60%),
+                radial-gradient(ellipse 80% 12% at 0% 52%, rgba(255, 130, 40, 0.65), transparent 65%),
+                radial-gradient(ellipse 70% 10% at 0% 88%, rgba(255, 200, 70, 0.6), transparent 60%);
+            background-size: 100% 420px;
+            animation: flameFlowUp calc(var(--flame-speed, 3.8s) * 0.62) linear infinite reverse;
+        }
+
+        .flame-shimmer-right {
+            background-image:
+                radial-gradient(ellipse 70% 8% at 100% 18%, rgba(255, 180, 60, 0.7), transparent 60%),
+                radial-gradient(ellipse 80% 12% at 100% 52%, rgba(255, 130, 40, 0.65), transparent 65%),
+                radial-gradient(ellipse 70% 10% at 100% 88%, rgba(255, 200, 70, 0.6), transparent 60%);
+            background-size: 100% 420px;
+            animation: flameFlowUp calc(var(--flame-speed, 3.8s) * 0.62) linear infinite reverse;
+        }
+
+        @keyframes flameFlowUp {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-600px);
+            }
+        }
+
+        /* --- Electric Zigzag Effect Layers --- */
+        .zigzag-layer-left,
+        .zigzag-layer-right {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 14px;
+            pointer-events: none;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .zigzag-layer-left {
+            left: 0;
+        }
+
+        .zigzag-layer-right {
+            right: 0;
+        }
+
+        .zigzag-svg {
+            position: absolute;
+            top: -300px;
+            bottom: -300px;
+            width: 100%;
+            height: calc(100% + 600px);
+            animation: zigzagRun var(--zigzag-speed, 1.4s) linear infinite;
+        }
+
+        .zigzag-path {
+            fill: none;
+            stroke: #ff2a3d;
+            stroke-width: 2.2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px #ff2a3d) drop-shadow(0 0 12px rgba(255, 42, 61, 0.8));
+        }
+
+        @keyframes zigzagRun {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-300px);
+            }
+        }
+
+        /* --- Animation Modes on Body --- */
+
+        /* 1. Flame Mode */
+        body.anim-flame .flame-layer-left,
+        body.anim-flame .flame-layer-right {
+            opacity: 1;
+        }
+
+        body.anim-flame .neon-line-left,
+        body.anim-flame .neon-line-right {
+            animation: flameLineFlicker 1.8s ease-in-out infinite alternate;
+        }
+
+        body.anim-flame .melting-edge-background {
+            animation: flameGlowBreathe 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes flameLineFlicker {
+            0% {
+                filter: drop-shadow(0 0 8px #ff2a3d) drop-shadow(0 0 18px rgba(255, 42, 61, 0.7));
+            }
+
+            35% {
+                filter: drop-shadow(0 0 16px #ff5938) drop-shadow(0 0 28px rgba(255, 89, 56, 0.85));
+            }
+
+            70% {
+                filter: drop-shadow(0 0 9px #ff1f38) drop-shadow(0 0 20px rgba(255, 31, 56, 0.65));
+            }
+
+            100% {
+                filter: drop-shadow(0 0 15px #ff7b36) drop-shadow(0 0 26px rgba(255, 123, 54, 0.8));
+            }
+        }
+
+        @keyframes flameGlowBreathe {
+            0% {
+                opacity: calc(var(--gradient-opacity) * 0.82);
+            }
+
+            100% {
+                opacity: var(--gradient-opacity);
+            }
+        }
+
+        /* 2. Zigzag Mode */
+        body.anim-zigzag .zigzag-layer-left,
+        body.anim-zigzag .zigzag-layer-right {
+            opacity: var(--zigzag-opacity, 1);
+        }
+
+        body.anim-zigzag .neon-line-left,
+
+        body.anim-zigzag .neon-line-right {
+            opacity: calc(var(--line-opacity) * 0.35);
+        }
+
+        /* 3. Subtle Pulse Mode */
+        body.anim-pulse .neon-line-left,
+        body.anim-pulse .neon-line-right {
+            animation: pulseLine var(--pulse-speed, 2.5s) ease-in-out infinite alternate;
+        }
+
+        body.anim-pulse .melting-edge-background {
+            animation: pulseGlow var(--pulse-speed, 2.5s) ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseLine {
+            0% {
+                opacity: calc(var(--line-opacity) * 0.4);
+                filter: drop-shadow(0 0 4px #ff2a3d);
+            }
+
+            100% {
+                opacity: var(--line-opacity);
+                filter: drop-shadow(0 0 16px #ff4258) drop-shadow(0 0 28px rgba(255, 42, 61, 0.9));
+            }
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                opacity: calc(var(--gradient-opacity) * 0.55);
+            }
+
+            100% {
+                opacity: var(--gradient-opacity);
+            }
+        }
+
+        /* ============================================================
+           TOP CONTROLS TOOLBAR (Adjust border width, opacity, blur live)
+           ============================================================ */
+        .test-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 10000;
+            background: #080808;
+            border-bottom: 1px solid var(--border-light);
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+        }
+
+        .tb-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        .tb-badge {
+            background: #ff2a3d;
+            color: #000000;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 2px 7px;
+            text-transform: uppercase;
+        }
+
+        .tb-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+
+        .tb-item input[type="range"] {
+            width: 85px;
+            accent-color: #ff2a3d;
+            cursor: pointer;
+        }
+
+        .tb-val {
+            color: #ffffff;
+            font-weight: 700;
+            min-width: 32px;
+        }
+
+        .tb-btn {
+            background: #141414;
+            border: 1px solid var(--border);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 11px;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .tb-btn:hover,
+        .tb-btn.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 700;
+            border-color: #ffffff;
+        }
+
+        /* ============================================================
+           STANDARD ORIGINAL LANDING PAGE CONTENT (CLEAN BLACK & WHITE)
+           ============================================================ */
+        .container {
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Bar */
+        .topbar {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .breadcrumb {
+            color: var(--text-faint);
+            letter-spacing: -0.2px;
+        }
+
+        .breadcrumb span {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb span.active {
+            color: var(--text-main);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        button,
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 0;
+            border: none;
+            background: none;
+            padding: 0;
+            color: inherit;
+            transition: opacity 0.15s;
+        }
+
+        .btn-text {
+            color: var(--text-muted);
+        }
+
+        .btn-text:hover {
+            color: var(--text-main);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            padding: 8px 16px;
+            font-weight: 500;
+            border: 1px solid #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #e6e6e6;
+        }
+
+        .btn-secondary {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+
+        .btn-secondary:hover {
+            border-color: #ffffff;
+        }
+
+        /* Main Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            padding: 60px 0 80px 0;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 58px;
+            font-weight: 400;
+            letter-spacing: -1.5px;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            line-height: 1;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.65;
+            max-width: 540px;
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+
+        .repo-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 32px;
+            font-size: 13px;
+        }
+
+        .repo-bar a {
+            color: var(--text-faint);
+            transition: color 0.15s;
+        }
+
+        .repo-bar a:hover {
+            color: var(--text-main);
+        }
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spiral-frame {
+            max-width: 360px;
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spiral-img {
+            max-width: 100%;
+            height: auto;
+            user-select: none;
+            pointer-events: none;
+            animation: robotFloat 6s ease-in-out infinite;
+            filter: drop-shadow(0 15px 35px rgba(255, 255, 255, 0.07));
+            transition: filter 0.3s ease;
+        }
+
+        @keyframes robotFloat {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                filter: drop-shadow(0 12px 25px rgba(255, 255, 255, 0.05));
+            }
+            50% {
+                transform: translateY(-8px) scale(1.01);
+                filter: drop-shadow(0 20px 40px rgba(255, 255, 255, 0.12));
+            }
+        }
+
+        /* Bottom Metrics Grid */
+        .metrics-section {
+            background: #050505;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 70px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .metric-card {
+            padding: 24px 20px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-card:last-child {
+            border-right: none;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: -0.2px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        /* Demo Panel (Clean Original Look) */
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: -0.4px;
+        }
+
+        .demo-panel {
+            background: #080808;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea,
+        input,
+        select {
+            width: 100%;
+            background: #000000;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 12px;
+            border-radius: 0;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus {
+            border-color: #ffffff;
+            outline: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .demo-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .demo-result-box {
+            background: #020202;
+            border: 1px solid var(--border);
+            padding: 18px;
+            margin-top: 20px;
+            font-size: 13px;
+            overflow-x: auto;
+            color: #d1d5db;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-faint);
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ============================================================
+         1. SEAMLESS MELTING EDGE GLOW (Directly on Background)
+         ============================================================ -->
+    <div class="melting-edge-background"></div>
+
+    <!-- Solid Glowing Neon Red Line at left: 0 -->
+    <div class="neon-line-left"></div>
+
+    <!-- Solid Glowing Neon Red Line at right: 0 -->
+    <div class="neon-line-right"></div>
+
+    <!-- Living Flame Animation Layers (Left & Right) -->
+    <div class="flame-layer-left">
+        <div class="flame-tongues-left"></div>
+        <div class="flame-shimmer-left"></div>
+    </div>
+    <div class="flame-layer-right">
+        <div class="flame-tongues-right"></div>
+        <div class="flame-shimmer-right"></div>
+    </div>
+
+    <!-- Electric Zigzag Animation Layers (Left & Right) -->
+    <div class="zigzag-layer-left">
+        <svg class="zigzag-svg" preserveAspectRatio="none" viewBox="0 0 16 600">
+            <path class="zigzag-path"
+                d="M 0 0 L 8 15 L 1 30 L 9 45 L 2 60 L 10 75 L 1 90 L 8 105 L 2 120 L 9 135 L 1 150 L 10 165 L 2 180 L 8 195 L 1 210 L 9 225 L 2 240 L 10 255 L 1 270 L 8 285 L 2 300 L 9 315 L 1 330 L 10 345 L 2 360 L 8 375 L 1 390 L 9 405 L 2 420 L 10 435 L 1 450 L 8 465 L 2 480 L 9 495 L 1 510 L 10 525 L 2 540 L 8 555 L 1 570 L 9 585 L 0 600" />
+        </svg>
+    </div>
+    <div class="zigzag-layer-right">
+        <svg class="zigzag-svg" preserveAspectRatio="none" viewBox="0 0 16 600">
+            <path class="zigzag-path"
+                d="M 16 0 L 8 15 L 15 30 L 7 45 L 14 60 L 6 75 L 15 90 L 8 105 L 14 120 L 7 135 L 15 150 L 6 165 L 14 180 L 8 195 L 15 210 L 7 225 L 14 240 L 6 255 L 15 270 L 8 285 L 14 300 L 7 315 L 15 330 L 6 345 L 14 360 L 8 375 L 15 390 L 7 405 L 14 420 L 6 435 L 15 450 L 8 465 L 14 480 L 7 495 L 15 510 L 6 525 L 14 540 L 8 555 L 15 570 L 7 585 L 16 600" />
+        </svg>
+    </div>
+
+    <!-- Melting Glassmorphism Blur Layers (Feathered smoothly into black body) -->
+    <div class="melting-glass-left"></div>
+    <div class="melting-glass-right"></div>
+
+    <!-- ============================================================
+         3. TOP LIVE CONTROLS (Easily adjust width, opacity, blur & animation)
+         ============================================================ -->
+    <div class="test-toolbar">
+        <div class="tb-title">
+            <span class="tb-badge">TEST PAGE</span>
+            <span>Border: 5% Red-to-Black Gradient + Glassmorphism</span>
+        </div>
+
+        <div class="tb-controls">
+            <!-- Border Line Opacity Slider (0% to 100%) -->
+            <div class="tb-item">
+                <label style="color:#ff6b7a; font-weight:700;">Line Opacity:</label>
+                <input type="range" id="ctrl_line_opacity" min="0" max="1" value="0.85" step="0.05">
+                <span class="tb-val" id="val_line_opacity">85%</span>
+            </div>
+
+            <!-- Gradient Glow Opacity Slider (0% to 100%) -->
+            <div class="tb-item">
+                <label>Glow Gradient:</label>
+                <input type="range" id="ctrl_grad_opacity" min="0" max="1" value="0.85" step="0.05">
+                <span class="tb-val" id="val_grad_opacity">85%</span>
+            </div>
+
+            <!-- Glassmorphism Opacity Slider (0% to 100%) -->
+            <div class="tb-item">
+                <label>Glass Opacity:</label>
+                <input type="range" id="ctrl_glass_opacity" min="0" max="1" value="1.0" step="0.05">
+                <span class="tb-val" id="val_glass_opacity">100%</span>
+            </div>
+
+            <!-- Glassmorphism Blur Slider -->
+            <div class="tb-item">
+                <label>Glass Blur:</label>
+                <input type="range" id="ctrl_blur" min="0" max="40" value="16" step="2">
+                <span class="tb-val" id="val_blur">16px</span>
+            </div>
+
+            <!-- Width Slider -->
+            <div class="tb-item">
+                <label>Width:</label>
+                <input type="range" id="ctrl_width" min="1" max="15" value="5" step="0.5">
+                <span class="tb-val" id="val_width">5%</span>
+            </div>
+
+            <!-- Animation Controls (Flame / Zigzag / Pulse / Static) -->
+            <div
+                style="display:flex; align-items:center; gap:6px; border-left:1px solid #333; padding-left:12px; margin-left:4px; flex-wrap:wrap;">
+                <label style="color:#ffa23a; font-weight:700;">Animation:</label>
+                <button type="button" class="tb-btn" id="btn_anim_flame">🔥 Flame</button>
+                <button type="button" class="tb-btn" id="btn_anim_zigzag">⚡ Zigzag</button>
+                <button type="button" class="tb-btn" id="btn_anim_pulse">💓 Pulse</button>
+                <button type="button" class="tb-btn active" id="btn_anim_off">⏹️ Static (Off)</button>
+            </div>
+
+            <!-- Zigzag Line Opacity Slider (visible always, most useful in Zigzag mode) -->
+            <div class="tb-item" style="border-left:1px solid #333; padding-left:12px;">
+                <label style="color:#00e5ff; font-weight:700;">⚡ Zigzag Opacity:</label>
+                <input type="range" id="ctrl_zigzag_opacity" min="0" max="1" value="1" step="0.05">
+                <span class="tb-val" id="val_zigzag_opacity">100%</span>
+            </div>
+
+            <!-- Quick Presets & Toggles -->
+            <div style="display:flex; gap:6px; flex-wrap:wrap; border-left:1px solid #333; padding-left:12px;">
+                <button type="button" class="tb-btn" id="btn_toggle_line">Toggle Line</button>
+                <button type="button" class="tb-btn" id="btn_toggle_glass">Toggle Glass</button>
+                <button type="button" class="tb-btn active" id="btn_preset_5">5% Standard</button>
+                <button type="button" class="tb-btn" id="btn_preset_noline">Line Off (Melt Only)</button>
+                <button type="button" class="tb-btn" id="btn_preset_max">100% Full Neon</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         4. CLEAN STANDARD LANDING PAGE CONTENT (Black & White)
+         Zero red in body or content area.
+         ============================================================ -->
+    <div class="container">
+        <!-- Top Navigation -->
+        <header class="topbar">
+            <div class="breadcrumb">
+                devbeast / <span class="active">laya</span>
+            </div>
+            <div class="nav-actions">
+                <button type="button" class="btn-text">docs</button>
+                <button type="button" class="btn-text">test model</button>
+                <button type="button" class="btn-text">sign in</button>
+                <button type="button" class="btn-primary">get started &rarr;</button>
+            </div>
+        </header>
+
+        <!-- Main Hero -->
+        <section class="hero">
+            <div class="hero-left">
+                <h1 class="hero-title">laya</h1>
+                <p class="hero-desc">
+                    laya is devbeast's open-weights system one decision model: it answers typed yes/no, choice and score
+                    questions about a piece of state in a single non-autoregressive forward pass, across 100+ languages,
+                    and never generates text.
+                </p>
+                <div class="repo-bar">
+                    <span>git repo:</span>
+                    <a href="https://github.com/devbeast/laya" target="_blank">devbeast/laya</a>
+                </div>
+                <div class="hero-buttons">
+                    <button type="button" class="btn-primary">test model &rarr;</button>
+                    <button type="button" class="btn-secondary">api docs</button>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="spiral-frame">
+                    <img src="robot.png" class="spiral-img" alt="Laya AI Robot Decision Engine" onerror="this.src='/robot.png'">
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Metrics Grid -->
+        <section class="metrics-section">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-label">Forward Latency</span>
+                    <span class="metric-value">12.4ms</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Verification Rate</span>
+                    <span class="metric-value">99.8%</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Languages</span>
+                    <span class="metric-value">100+</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Hallucinations</span>
+                    <span class="metric-value">0.00%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Model Test Section -->
+        <section class="model-test">
+            <div class="section-header">
+                <h2 class="section-title">Test Model</h2>
+                <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+                    Execute single-pass classification and scoring queries.
+                </p>
+            </div>
+
+            <div class="demo-panel">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="lp_type">Decision Type</label>
+                        <select id="lp_type">
+                            <option value="noul">Boolean (Yes / No / Null)</option>
+                            <option value="choice">Multiple Choice (Routing)</option>
+                            <option value="classification">Classification & Categorization</option>
+                            <option value="score">Scoring & Severity Rubric (0.00 &ndash; 1.00)</option>
+                            <option value="sentiment">Sentiment Analysis</option>
+                            <option value="risk">Risk & Urgency Evaluation</option>
+                            <option value="intent">Intent Classification</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lp_query">Decision Question / Target Criteria</label>
+                        <input type="text" id="lp_query"
+                            value="Is this inquiry related to account security or login failure?">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lp_context">State Context (Text to evaluate)</label>
+                    <textarea id="lp_context"
+                        rows="4">User says: "I entered my 2FA security code twice but received invalid session token error 401."</textarea>
+                </div>
+
+                <div class="demo-actions">
+                    <button type="button" class="btn-primary" id="btn-run-query">run query &rarr;</button>
+                    <span style="font-size:12px; color:var(--text-faint);">public mode &bull; sub-second forward
+                        pass</span>
+                </div>
+
+                <div class="demo-result-box" id="lp_result_box">{
+                    "status": "ready",
+                    "border_effect": "Left and Right 5% Red-to-Black Gradient + Glassmorphism Blur",
+                    "content_area": "100% clean black and white (unaffected)",
+                    "verdict": "YES",
+                    "probability": 0.9982,
+                    "forward_latency_ms": 11.4
+                    }</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>&copy; 2026 devbeast &middot; laya open-weights decision model</div>
+            <div style="display:flex; gap:16px;">
+                <span style="color:var(--text-muted);">docs</span>
+                <span style="color:var(--text-muted);">dashboard</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============================================================
+         5. REALTIME CONTROLS SCRIPT
+         ============================================================ -->
+    <script>
+        const ctrlWidth = document.getElementById('ctrl_width');
+        const ctrlLineOpacity = document.getElementById('ctrl_line_opacity');
+        const ctrlGradOpacity = document.getElementById('ctrl_grad_opacity');
+        const ctrlGlassOpacity = document.getElementById('ctrl_glass_opacity');
+        const ctrlBlur = document.getElementById('ctrl_blur');
+        const ctrlZigzagOpacity = document.getElementById('ctrl_zigzag_opacity');
+
+        const valWidth = document.getElementById('val_width');
+        const valLineOpacity = document.getElementById('val_line_opacity');
+        const valGradOpacity = document.getElementById('val_grad_opacity');
+        const valGlassOpacity = document.getElementById('val_glass_opacity');
+        const valBlur = document.getElementById('val_blur');
+        const valZigzagOpacity = document.getElementById('val_zigzag_opacity');
+
+        const root = document.documentElement;
+
+        const bgEl = document.querySelector('.melting-edge-background');
+        const neonL = document.querySelector('.neon-line-left');
+        const neonR = document.querySelector('.neon-line-right');
+        const glassL = document.querySelector('.melting-glass-left');
+        const glassR = document.querySelector('.melting-glass-right');
+        const zigzagL = document.querySelector('.zigzag-layer-left');
+        const zigzagR = document.querySelector('.zigzag-layer-right');
+
+        function updateBorderStyles() {
+            const w = ctrlWidth.value;
+            const lineOp = parseFloat(ctrlLineOpacity.value);
+            const gradOp = parseFloat(ctrlGradOpacity.value);
+            const gOp = parseFloat(ctrlGlassOpacity.value);
+            const bl = parseInt(ctrlBlur.value, 10);
+            const zzOp = parseFloat(ctrlZigzagOpacity.value);
+
+            valWidth.textContent = w + '%';
+            valLineOpacity.textContent = Math.round(lineOp * 100) + '%';
+            valGradOpacity.textContent = Math.round(gradOp * 100) + '%';
+            valGlassOpacity.textContent = Math.round(gOp * 100) + '%';
+            valBlur.textContent = bl + 'px';
+            valZigzagOpacity.textContent = Math.round(zzOp * 100) + '%';
+
+            // 1. Update CSS Variables
+            root.style.setProperty('--border-w', w + '%');
+            root.style.setProperty('--line-opacity', lineOp);
+            root.style.setProperty('--gradient-opacity', gradOp);
+            root.style.setProperty('--glass-opacity', gOp);
+            root.style.setProperty('--glass-blur', bl + 'px');
+            root.style.setProperty('--zigzag-opacity', zzOp);
+
+            // 2. Directly update DOM Element Inline Styles for 100% instant browser responsiveness
+            if (neonL) {
+                neonL.style.opacity = lineOp;
+                neonL.style.display = lineOp > 0 ? 'block' : 'none';
+            }
+            if (neonR) {
+                neonR.style.opacity = lineOp;
+                neonR.style.display = lineOp > 0 ? 'block' : 'none';
+            }
+
+            if (bgEl) {
+                bgEl.style.opacity = gradOp;
+                bgEl.style.display = gradOp > 0 ? 'block' : 'none';
+            }
+
+            if (glassL) {
+                glassL.style.opacity = gOp;
+                glassL.style.backdropFilter = `blur(${bl}px)`;
+                glassL.style.webkitBackdropFilter = `blur(${bl}px)`;
+                glassL.style.display = gOp > 0 ? 'block' : 'none';
+            }
+            if (glassR) {
+                glassR.style.opacity = gOp;
+                glassR.style.backdropFilter = `blur(${bl}px)`;
+                glassR.style.webkitBackdropFilter = `blur(${bl}px)`;
+                glassR.style.display = gOp > 0 ? 'block' : 'none';
+            }
+
+            // Zigzag: apply opacity directly when mode is active
+            if (zigzagL) zigzagL.style.setProperty('--zigzag-opacity', zzOp);
+            if (zigzagR) zigzagR.style.setProperty('--zigzag-opacity', zzOp);
+
+            const resBox = document.getElementById('lp_result_box');
+            if (resBox) {
+                resBox.textContent = JSON.stringify({
+                    "border_line_opacity": Math.round(lineOp * 100) + "%",
+                    "gradient_glow_opacity": Math.round(gradOp * 100) + "%",
+                    "glassmorphism_opacity": Math.round(gOp * 100) + "%",
+                    "glass_blur": bl + "px",
+                    "border_width": w + "%",
+                    "zigzag_opacity": Math.round(zzOp * 100) + "%",
+                    "status": "live_realtime_updated"
+                }, null, 2);
+            }
+        }
+
+        ctrlWidth.addEventListener('input', updateBorderStyles);
+        ctrlLineOpacity.addEventListener('input', updateBorderStyles);
+        ctrlGradOpacity.addEventListener('input', updateBorderStyles);
+        ctrlGlassOpacity.addEventListener('input', updateBorderStyles);
+        ctrlBlur.addEventListener('input', updateBorderStyles);
+        ctrlZigzagOpacity.addEventListener('input', function () {
+            const zzOp = parseFloat(this.value);
+            valZigzagOpacity.textContent = Math.round(zzOp * 100) + '%';
+            // Update CSS variable globally
+            root.style.setProperty('--zigzag-opacity', zzOp);
+            // Directly force opacity on the elements regardless of CSS class
+            if (zigzagL) zigzagL.style.opacity = document.body.classList.contains('anim-zigzag') ? zzOp : 0;
+            if (zigzagR) zigzagR.style.opacity = document.body.classList.contains('anim-zigzag') ? zzOp : 0;
+        });
+
+        // Toggle Line Button (0% vs 85%)
+        document.getElementById('btn_toggle_line').addEventListener('click', function () {
+            if (parseFloat(ctrlLineOpacity.value) > 0) {
+                ctrlLineOpacity.value = 0;
+                this.classList.remove('active');
+            } else {
+                ctrlLineOpacity.value = 0.85;
+                this.classList.add('active');
+            }
+            updateBorderStyles();
+        });
+
+        // Toggle Glass Button (0% vs 100%)
+        document.getElementById('btn_toggle_glass').addEventListener('click', function () {
+            if (parseFloat(ctrlGlassOpacity.value) > 0) {
+                ctrlGlassOpacity.value = 0;
+                this.classList.remove('active');
+            } else {
+                ctrlGlassOpacity.value = 1.0;
+                this.classList.add('active');
+            }
+            updateBorderStyles();
+        });
+
+        // Presets
+        document.getElementById('btn_preset_5').addEventListener('click', function () {
+            ctrlWidth.value = 5;
+            ctrlLineOpacity.value = 0.85;
+            ctrlGradOpacity.value = 0.85;
+            ctrlGlassOpacity.value = 1.0;
+            ctrlBlur.value = 16;
+            updateBorderStyles();
+            setActivePreset(this);
+        });
+
+        document.getElementById('btn_preset_noline').addEventListener('click', function () {
+            ctrlWidth.value = 5;
+            ctrlLineOpacity.value = 0;
+            ctrlGradOpacity.value = 0.85;
+            ctrlGlassOpacity.value = 1.0;
+            ctrlBlur.value = 16;
+            updateBorderStyles();
+            setActivePreset(this);
+        });
+
+        document.getElementById('btn_preset_max').addEventListener('click', function () {
+            ctrlWidth.value = 5;
+            ctrlLineOpacity.value = 1.0;
+            ctrlGradOpacity.value = 1.0;
+            ctrlGlassOpacity.value = 1.0;
+            ctrlBlur.value = 20;
+            updateBorderStyles();
+            setActivePreset(this);
+        });
+
+        function setActivePreset(btn) {
+            document.querySelectorAll('#btn_preset_5, #btn_preset_noline, #btn_preset_max').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // ============================================================
+        // ANIMATION MODES (Flame, Zigzag Wave, Soft Pulse, Static)
+        // ============================================================
+        let currentAnimMode = 'off';
+
+        function setAnimMode(mode, triggerBtn) {
+            currentAnimMode = mode;
+            document.body.classList.remove('anim-flame', 'anim-zigzag', 'anim-pulse');
+
+            document.querySelectorAll('#btn_anim_flame, #btn_anim_zigzag, #btn_anim_pulse, #btn_anim_off')
+                .forEach(b => b.classList.remove('active'));
+
+            if (mode === 'flame') {
+                document.body.classList.add('anim-flame');
+                // Reset zigzag to hidden
+                if (zigzagL) zigzagL.style.opacity = 0;
+                if (zigzagR) zigzagR.style.opacity = 0;
+            } else if (mode === 'zigzag') {
+                document.body.classList.add('anim-zigzag');
+                // Apply current zigzag opacity slider value immediately
+                const zzOp = parseFloat(ctrlZigzagOpacity.value);
+                if (zigzagL) zigzagL.style.opacity = zzOp;
+                if (zigzagR) zigzagR.style.opacity = zzOp;
+            } else if (mode === 'pulse') {
+                document.body.classList.add('anim-pulse');
+                // Reset zigzag to hidden
+                if (zigzagL) zigzagL.style.opacity = 0;
+                if (zigzagR) zigzagR.style.opacity = 0;
+            } else {
+                // Static off — reset zigzag
+                if (zigzagL) zigzagL.style.opacity = 0;
+                if (zigzagR) zigzagR.style.opacity = 0;
+            }
+
+            if (triggerBtn) triggerBtn.classList.add('active');
+
+            const resBox = document.getElementById('lp_result_box');
+            if (resBox) {
+                try {
+                    const data = JSON.parse(resBox.textContent);
+                    data.animation_mode = mode;
+                    resBox.textContent = JSON.stringify(data, null, 2);
+                } catch (e) { }
+            }
+        }
+
+        document.getElementById('btn_anim_flame').addEventListener('click', function () {
+            setAnimMode('flame', this);
+        });
+
+        document.getElementById('btn_anim_zigzag').addEventListener('click', function () {
+            setAnimMode('zigzag', this);
+        });
+
+        document.getElementById('btn_anim_pulse').addEventListener('click', function () {
+            setAnimMode('pulse', this);
+        });
+
+        document.getElementById('btn_anim_off').addEventListener('click', function () {
+            setAnimMode('off', this);
+        });
+
+        // Test Query Button
+        document.getElementById('btn-run-query').addEventListener('click', function () {
+            const type = document.getElementById('lp_type').value;
+            const query = document.getElementById('lp_query').value;
+            const box = document.getElementById('lp_result_box');
+            box.textContent = "Executing single forward pass...";
+            setTimeout(() => {
+                box.textContent = JSON.stringify({
+                    "model": "laya",
+                    "type": type,
+                    "query": query,
+                    "verdict": type === 'noul' ? "YES" : (type === 'score' ? 0.94 : "ACCOUNT_SECURITY"),
+                    "confidence": 0.9984,
+                    "latency": "11.2ms",
+                    "border_style": "5% Red-to-Black Gradient + Glassmorphism Blur"
+                }, null, 2);
+            }, 250);
+        });
+
+        // Type dropdown changes
+        document.getElementById('lp_type').addEventListener('change', function () {
+            const q = document.getElementById('lp_query');
+            const v = this.value;
+            if (v === 'noul') q.value = "Is this inquiry related to account security or login failure?";
+            else if (v === 'choice') q.value = "Route to department: security, billing, technical, general";
+            else if (v === 'classification') q.value = "Classify message: auth_error, timeout, general_question";
+            else if (v === 'score') q.value = "Score urgency rubric from 0.00 (low) to 1.00 (critical)";
+            else if (v === 'sentiment') q.value = "Detect customer sentiment";
+            else if (v === 'risk') q.value = "Evaluate account risk level";
+            else if (v === 'intent') q.value = "Determine customer intent";
+        });
+    </script>
+</body>
+
+</html>

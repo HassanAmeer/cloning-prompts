@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jev AI &mdash; Authentication & Access Portal</title>
+    <meta name="description" content="Sign in or create a developer account for Jev AI - The ultra-fast System 1 decision engine.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --bg: #000000;
+            --bg-card: #080808;
+            --bg-input: #030303;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: #222222;
+            --border-hover: #333333;
+            --accent-red: #ff2a3d;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #030303;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        .zz-layer-left {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 14px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0.13;
+            overflow: hidden;
+        }
+        .zz-svg { width: 100%; height: 100%; display: block; }
+        .zz-path {
+            stroke: var(--accent-red);
+            stroke-width: 1.5;
+            fill: none;
+            stroke-dasharray: 6 3;
+            animation: zzRunUp 16s linear infinite;
+        }
+        @keyframes zzRunUp { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 400; } }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 440px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .brand-header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .brand-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 6px;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: #030303;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 3px;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: #141414;
+            color: #ffffff;
+            border: 1px solid #333333;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #ffffff;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 8px;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .alert-box {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #f87171;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #34d399;
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .auth-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .auth-footer a:hover { color: #ffffff; }
+    </style>
+</head>
+<body>
+    <div class="zz-layer-left">
+        <svg class="zz-svg" preserveAspectRatio="none" viewBox="0 0 16 600">
+            <path class="zz-path" d="M 0 0 L 8 15 L 1 30 L 9 45 L 2 60 L 10 75 L 1 90 L 8 105 L 2 120 L 9 135 L 1 150 L 10 165 L 2 180 L 8 195 L 1 210 L 9 225 L 2 240 L 10 255 L 1 270 L 8 285 L 2 300 L 9 315 L 1 330 L 10 345 L 2 360 L 8 375 L 1 390 L 9 405 L 2 420 L 10 435 L 1 450 L 8 465 L 2 480 L 9 495 L 1 510 L 10 525 L 2 540 L 8 555 L 1 570 L 9 585 L 0 600"/>
+        </svg>
+    </div>
+
+    <div class="auth-card">
+        <div class="brand-header">
+            <a href="index.html">&larr; devbeast / jev</a>
+            <div class="brand-title">Jev AI Console</div>
+        </div>
+
+        <div class="tab-bar">
+            <button type="button" class="tab-btn active" id="tab_user_signin">Sign In</button>
+            <button type="button" class="tab-btn" id="tab_user_signup">Sign Up</button>
+        </div>
+
+        <div id="alert_box" class="alert-box alert-error"></div>
+
+        <!-- User Sign In / Sign Up Form -->
+        <form id="user_form">
+            <div class="form-group">
+                <label for="user_email">Email Address</label>
+                <input type="email" id="user_email" required placeholder="developer@example.com" autocomplete="email" />
+            </div>
+            <div class="form-group">
+                <label for="user_password">Password</label>
+                <input type="password" id="user_password" required placeholder="Enter password" autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn-submit" id="btn_user_submit">Sign In &rarr;</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="index.html">Landing Page</a>
+            <a href="api.html">API Docs</a>
+            <a href="test.html">Test Console</a>
+        </div>
+    </div>
+
+    <script>
+        var currentTab = 'signin';
+        var userForm = document.getElementById('user_form');
+        var alertBox = document.getElementById('alert_box');
+        var btnUserSubmit = document.getElementById('btn_user_submit');
+
+        var tabSignin = document.getElementById('tab_user_signin');
+        var tabSignup = document.getElementById('tab_user_signup');
+
+        function setTab(tab) {
+            currentTab = tab;
+            alertBox.style.display = 'none';
+            tabSignin.classList.remove('active');
+            tabSignup.classList.remove('active');
+
+            if (tab === 'signin') {
+                tabSignin.classList.add('active');
+                btnUserSubmit.textContent = 'Sign In →';
+            } else if (tab === 'signup') {
+                tabSignup.classList.add('active');
+                btnUserSubmit.textContent = 'Create Developer Account →';
+            }
+        }
+
+        tabSignin.addEventListener('click', function() { setTab('signin'); });
+        tabSignup.addEventListener('click', function() { setTab('signup'); });
+
+        if (window.location.search.indexOf('signup') !== -1 || window.location.hash === '#signup') {
+            setTab('signup');
+        }
+
+        // Handle User Auth
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alertBox.style.display = 'none';
+            var email = document.getElementById('user_email').value.trim();
+            var password = document.getElementById('user_password').value;
+
+            btnUserSubmit.disabled = true;
+            btnUserSubmit.textContent = 'Authenticating...';
+
+            var endpoint = (currentTab === 'signup') ? '/user/signup' : '/user/login';
+            var fullUrl = (window.getApiUrl ? window.getApiUrl(endpoint) : endpoint);
+            var authCall = (window.authFetch ? window.authFetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            }) : fetch(fullUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            }));
+
+            authCall
+            .then(function(res) {
+                return res.json().then(function(data) {
+                    return { ok: res.ok, data: data };
+                });
+            })
+            .then(function(resObj) {
+                btnUserSubmit.disabled = false;
+                btnUserSubmit.textContent = (currentTab === 'signup') ? 'Create Developer Account →' : 'Sign In →';
+                var data = resObj.data;
+                if (resObj.ok && data.status === 'success') {
+                    if (data.token) localStorage.setItem('laya_user_token', data.token);
+                    if (data.user) localStorage.setItem('laya_user', JSON.stringify(data.user));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alertBox.className = 'alert-box alert-error';
+                    alertBox.textContent = data.detail || 'Authentication failed.';
+                    alertBox.style.display = 'block';
+                }
+            })
+            .catch(function(err) {
+                btnUserSubmit.disabled = false;
+                btnUserSubmit.textContent = (currentTab === 'signup') ? 'Create Developer Account →' : 'Sign In →';
+                alertBox.className = 'alert-box alert-error';
+                alertBox.textContent = 'Network error: ' + err.message;
+                alertBox.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
