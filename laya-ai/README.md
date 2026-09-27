@@ -72,6 +72,9 @@ Read **[CLONE_FOR_CPANEL.md](./CLONE_FOR_CPANEL.md)** — contains:
 
 ![Landing Page Full](./screenshots/landing_page.png)
 
+### User Dashboard — Overview & API Hits
+![User Dashboard](./screenshots/user_dashboard.png)
+
 ### User Dashboard — Code Integration Tab
 ![Dashboard Code Snippets](./screenshots/dashboard_code_tab.png)
 
