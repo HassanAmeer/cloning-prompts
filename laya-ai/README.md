@@ -68,7 +68,9 @@ Read **[CLONE_FOR_CPANEL.md](./CLONE_FOR_CPANEL.md)** — contains:
 ## 🖥️ Screenshots
 
 ### Landing Page
-![Landing Page](./screenshots/landing_page.png)
+![Landing Page](./screenshots/landing_page_full.png)
+
+![Landing Page Full](./screenshots/landing_page.png)
 
 ### User Dashboard — Code Integration Tab
 ![Dashboard Code Snippets](./screenshots/dashboard_code_tab.png)
