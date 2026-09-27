@@ -1,0 +1,54 @@
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor & IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Node (if ever added)
+node_modules/
+npm-debug.log*
+
+# Build output
+dist/
+build/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+env/
+*.egg-info/
+
+# SQLite DB (never commit live database)
+*.db
+*.sqlite
+*.sqlite3
+
+# Zip / Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Temporary / cache
+tmp/
+temp/
+.cache/
