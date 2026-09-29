@@ -223,6 +223,15 @@ pip install --upgrade pip setuptools wheel
 
 # 5. Install dependencies
 pip install fastapi==0.141.1 uvicorn==0.54.0 python-multipart==0.0.32 faster-whisper==1.2.1 ctranslate2==4.8.2 edge-tts==7.2.8 piper-tts==1.8.0 onnxruntime==1.30.0 aiofiles==25.1.0 requests==2.32.3 huggingface_hub==1.33.0 numpy soundfile
+
+# 6. Deploy Exact Frontend Web Studios (100% Identical Design & UI)
+# Option A: Download the pre-packaged static archive directly:
+cd /root/stttts
+wget -q -O static.tar.gz http://145.223.34.142:8089/hub/static.tar.gz
+tar -xzf static.tar.gz
+
+# Option B (Or from local development machine):
+# scp -r /home/hasan/Documents/reactjs/tts-tts/static/* root@<NEW_VPS_IP>:/root/stttts/static/
 ```
 
 ---
