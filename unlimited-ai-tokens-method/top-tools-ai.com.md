@@ -12,7 +12,7 @@ and also each account have 20 milions tokens
 usman@siekarmi.live
 usman@siekarmi
 
-julio@siekarmi.live ----> forget email
+julio@siekarmi.live
 julio@siekarmi
 
 yousra@sportu.info
@@ -21,3 +21,5 @@ yousra@sportu
 nazo@sportu.info
 nazo@sportu
 
+sandoor@sportu.info
+sandoor@sportu
